@@ -1,6 +1,6 @@
 # Overview
 
-This is a Smart Research Assistant application that uses AI to generate comprehensive research documents and find relevant images. The app provides a multilingual interface supporting Arabic, English, and French, with AI-powered content generation through OpenAI's API and image search capabilities via DuckDuckGo.
+This is a Smart Research Assistant application that uses AI to generate comprehensive research documents and find relevant images. The app provides a multilingual interface supporting Arabic, English, and French, with AI-powered content generation through Google Gemini API and real-time image search capabilities via DuckDuckGo Search. Features include dynamic image size controls and PDF export functionality.
 
 # User Preferences
 
@@ -44,29 +44,29 @@ Preferred communication style: Simple, everyday language.
 - **Main Interface**: Dynamic content rendering with language switching
 - **Background Animation**: Canvas-based particle system for visual enhancement
 - **PDF Export**: Client-side PDF generation using html2pdf.js
-- **Image Integration**: Drag-and-drop image placement into research content
+- **Image Integration**: Click-to-place image functionality with dynamic size controls (25%, 50%, 75%, 100%)
 
 # Data Flow
 
 1. **User Input**: User enters research topic and selects language
 2. **Research Generation**: 
    - Frontend sends topic and language to `/api/generate-research`
-   - Backend calls OpenAI API with language-specific prompts
+   - Backend calls Google Gemini API with language-specific prompts
    - Generated content is returned and rendered as Markdown
 3. **Image Search**:
    - System automatically searches for relevant images
    - Images are fetched via `/api/search-images` endpoint
    - Results are displayed in sidebar gallery
-4. **Content Assembly**: Users can insert images into research placeholders
+4. **Content Assembly**: Users can insert images into research placeholders with customizable size controls
 5. **Export**: Final document can be exported as PDF
 
 # External Dependencies
 
 ## APIs and Services
-- **OpenAI API**: Content generation using GPT models
-- **DuckDuckGo Search**: Image search and retrieval
+- **Google Gemini API**: Content generation using Gemini AI models
+- **DuckDuckGo Search**: Real-time image search and retrieval with accessibility verification
 - **Required Environment Variables**:
-  - `OPENAI_API_KEY`: OpenAI API authentication
+  - `GOOGLE_API_KEY`: Google Gemini API authentication
   - `SESSION_SECRET`: Flask session security (optional, has default)
 
 ## Frontend Libraries
@@ -78,7 +78,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Python Dependencies
 - **Flask**: Web framework
-- **OpenAI**: Official OpenAI Python client
+- **google-generativeai**: Official Google Gemini Python client
 - **duckduckgo-search**: DuckDuckGo search API wrapper
 - **requests**: HTTP client for API calls
 
