@@ -282,16 +282,10 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
             'fr': f'Traduisez ce sujet/titre arabe en français clair et concis: "{topic}". Retournez seulement le texte traduit sans aucune explication.'
         }
         
+        # Always use fallback translations first for better reliability
         try:
-            if self.model and GEMINI_AVAILABLE:
-                # Use Gemini for translation
-                prompt = translation_prompts.get(target_language, translation_prompts['en'])
-                response = self.model.generate_content(prompt)
-                translated_topic = response.text.strip()
-                return translated_topic
-            else:
-                # Fallback translations for common topics
-                fallback_translations = {
+            # Comprehensive fallback translations for common topics
+            fallback_translations = {
                     'en': {
                         'التلوث البيئي': 'Environmental Pollution',
                         'تلوث الماء': 'Water Pollution',
@@ -307,7 +301,18 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'الصحة': 'Health',
                         'العلوم': 'Science',
                         'الأمن السيبراني': 'Cybersecurity',
-                        'التغير المناخي': 'Climate Change'
+                        'التغير المناخي': 'Climate Change',
+                        'الالعاب الالكترونيه': 'Electronic Games',
+                        'العاب الالكترونيه': 'Electronic Games',
+                        'الألعاب الإلكترونية': 'Electronic Games',
+                        'ألعاب الفيديو': 'Video Games',
+                        'اشرف حكيمي': 'Achraf Hakimi',
+                        'أشرف حكيمي': 'Achraf Hakimi',
+                        'كرة القدم': 'Football',
+                        'الرياضة': 'Sports',
+                        'البرمجة': 'Programming',
+                        'الإنترنت': 'Internet',
+                        'الشبكة العنكبوتية': 'World Wide Web'
                     },
                     'fr': {
                         'التلوث البيئي': 'Pollution Environnementale',
@@ -324,64 +329,90 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'الصحة': 'Santé',
                         'العلوم': 'Sciences',
                         'الأمن السيبراني': 'Cybersécurité',
-                        'التغير المناخي': 'Changement Climatique'
+                        'التغير المناخي': 'Changement Climatique',
+                        'الالعاب الالكترونيه': 'Jeux Électroniques',
+                        'العاب الالكترونيه': 'Jeux Électroniques',
+                        'الألعاب الإلكترونية': 'Jeux Électroniques',
+                        'ألعاب الفيديو': 'Jeux Vidéo',
+                        'اشرف حكيمي': 'Achraf Hakimi',
+                        'أشرف حكيمي': 'Achraf Hakimi',
+                        'كرة القدم': 'Football',
+                        'الرياضة': 'Sports',
+                        'البرمجة': 'Programmation',
+                        'الإنترنت': 'Internet',
+                        'الشبكة العنكبوتية': 'World Wide Web'
                     }
-                }
-                
-                # Try to find exact match first
-                lang_dict = fallback_translations.get(target_language, fallback_translations['en'])
-                
-                # Clean topic for better matching
-                topic_cleaned = topic.strip()
-                
-                if topic_cleaned in lang_dict:
-                    return lang_dict[topic_cleaned]
-                
-                # Try partial match with better logic
-                for arabic_term, translation in lang_dict.items():
-                    if arabic_term == topic_cleaned:
+            }
+            
+            # Try to find exact match first
+            lang_dict = fallback_translations.get(target_language, fallback_translations['en'])
+            
+            # Clean topic for better matching
+            topic_cleaned = topic.strip()
+            
+            if topic_cleaned in lang_dict:
+                return lang_dict[topic_cleaned]
+            
+            # Try partial match with better logic
+            for arabic_term, translation in lang_dict.items():
+                if arabic_term == topic_cleaned:
+                    return translation
+                # Check if the topic contains the term or vice versa
+                if arabic_term in topic_cleaned or topic_cleaned in arabic_term:
+                    # Only match if similarity is high enough
+                    if len(arabic_term) > 3 and len(topic_cleaned) > 3:
                         return translation
-                    # Check if the topic contains the term or vice versa
-                    if arabic_term in topic_cleaned or topic_cleaned in arabic_term:
-                        # Only match if similarity is high enough
-                        if len(arabic_term) > 3 and len(topic_cleaned) > 3:
-                            return translation
-                
-                # For unknown topics, attempt basic translation patterns
-                if target_language == 'en':
-                    # Basic fallback for English
-                    if 'تلوث' in topic_cleaned:
-                        if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
-                            return 'Water Pollution'
-                        else:
-                            return 'Environmental Pollution'
-                    elif 'بيئ' in topic_cleaned:
-                        return 'Environment'
-                    elif 'علوم' in topic_cleaned:
-                        return 'Science'
-                    elif 'طب' in topic_cleaned:
-                        return 'Medicine'
+            
+            # For unknown topics, attempt basic translation patterns
+            if target_language == 'en':
+                # Basic fallback for English
+                if 'تلوث' in topic_cleaned:
+                    if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
+                        return 'Water Pollution'
                     else:
-                        return topic_cleaned  # Return original if no pattern match
-                        
-                elif target_language == 'fr':
-                    # Basic fallback for French
-                    if 'تلوث' in topic_cleaned:
-                        if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
-                            return 'Pollution de l\'eau'
-                        else:
-                            return 'Pollution Environnementale'
-                    elif 'بيئ' in topic_cleaned:
-                        return 'Environnement'
-                    elif 'علوم' in topic_cleaned:
-                        return 'Sciences'
-                    elif 'طب' in topic_cleaned:
-                        return 'Médecine'
+                        return 'Environmental Pollution'
+                elif 'بيئ' in topic_cleaned:
+                    return 'Environment'
+                elif 'علوم' in topic_cleaned:
+                    return 'Science'
+                elif 'طب' in topic_cleaned:
+                    return 'Medicine'
+                elif 'العاب' in topic_cleaned or 'ألعاب' in topic_cleaned:
+                    return 'Electronic Games'
+                else:
+                    return topic_cleaned  # Return original if no pattern match
+                    
+            elif target_language == 'fr':
+                # Basic fallback for French
+                if 'تلوث' in topic_cleaned:
+                    if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
+                        return 'Pollution de l\'eau'
                     else:
-                        return topic_cleaned  # Return original if no pattern match
-                
-                # Final fallback
-                return topic_cleaned
+                        return 'Pollution Environnementale'
+                elif 'بيئ' in topic_cleaned:
+                    return 'Environnement'
+                elif 'علوم' in topic_cleaned:
+                    return 'Sciences'
+                elif 'طب' in topic_cleaned:
+                    return 'Médecine'
+                elif 'العاب' in topic_cleaned or 'ألعاب' in topic_cleaned:
+                    return 'Jeux Électroniques'
+                else:
+                    return topic_cleaned  # Return original if no pattern match
+            
+            # Try Gemini as backup if fallback failed
+            if self.model and GEMINI_AVAILABLE and topic_cleaned == topic:
+                try:
+                    prompt = translation_prompts.get(target_language, translation_prompts['en'])
+                    response = self.model.generate_content(prompt)
+                    translated_topic = response.text.strip()
+                    if translated_topic and translated_topic != topic:
+                        return translated_topic
+                except Exception as e:
+                    print(f"Gemini translation error: {e}")
+            
+            # Final fallback
+            return topic_cleaned
                 
         except Exception as e:
             print(f"Translation error: {str(e)}")
