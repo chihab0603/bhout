@@ -209,8 +209,25 @@ async function generateResearch() {
         const data = await response.json();
 
         if (data.success) {
+            // Process content and replace topic in title if translated
+            let content = data.content;
+            
+            // If topic was translated, replace the Arabic topic in the content with translated version
+            if (currentLanguage !== 'ar' && topic !== elements.topicInput.value.trim()) {
+                const originalTopic = elements.topicInput.value.trim();
+                // Replace the topic in the first h1 (main title)
+                content = content.replace(
+                    new RegExp(`^# ${originalTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm'),
+                    `# ${topic}`
+                );
+                
+                // Also replace any other occurrences in the content
+                const regex = new RegExp(originalTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                content = content.replace(regex, topic);
+            }
+            
             // Display research content
-            elements.researchOutputContent.innerHTML = marked.parse(data.content);
+            elements.researchOutputContent.innerHTML = marked.parse(content);
             elements.loader.classList.add('hidden');
             elements.loader.classList.remove('flex');
             elements.researchOutputContent.classList.remove('hidden');
