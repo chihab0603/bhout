@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مساعد الأبحاث الذكي - إنشاء أبحاث بالذكاء الاصطناعي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+        --background-color: #0a0f1a;
+        --primary-color: #101828;
+        --secondary-color: #1d2939;
+        --accent-color: #00aaff;
+        --accent-color-darker: #0088cc;
+        --glow-color: rgba(0, 170, 255, 0.5);
+        --text-color: #e0e0e0;
+        --subtext-color: #98a2b3;
+        --border-color: #344054;
+    }
+
+    body { font-family: 'Cairo', sans-serif; background-color: var(--background-color); color: var(--text-color); }
+    
+    #ai-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    .control-panel {
+        background-color: rgba(16, 24, 40, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border-color);
+        max-height: 90vh;
+    }
+
+    .panel-title {
+        color: var(--accent-color);
+        text-shadow: 0 0 8px var(--glow-color);
+    }
+
+    .lang-btn { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    .lang-btn.active { background-color: var(--accent-color); color: var(--primary-color); border-color: var(--accent-color); box-shadow: 0 0 15px var(--glow-color); transform: scale(1.05); }
+
+    #topicInput { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    #topicInput:focus { border-color: var(--accent-color); box-shadow: 0 0 10px var(--glow-color); outline: none; }
+
+    #generateBtn, #downloadPdfBtn { background-color: var(--accent-color); color: var(--primary-color); border-color: var(--accent-color); transition: all 0.3s ease; }
+    #generateBtn:hover, #downloadPdfBtn:hover:not(:disabled) { background-color: var(--accent-color-darker); box-shadow: 0 0 15px var(--glow-color); }
+    #generateBtn:disabled { background-color: var(--secondary-color); color: var(--subtext-color); cursor: not-allowed; }
+
+    .research-output-container { 
+        background-color: rgba(255, 255, 255, 0.95); 
+        color: #000; 
+        border: 1px solid var(--border-color); 
+        font-family: 'Cairo', sans-serif; 
+        height: 90vh;
+    }
+    .research-output-container.lang-fr, .research-output-container.lang-en { font-family: 'Lato', sans-serif; }
+
+    .research-output-content { line-height: 1.8; }
+    .research-output-content h1, .research-output-content h2, .research-output-content h3 { color: #000; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.25rem; }
+    .research-output-content h1 { font-size: 1.8rem; }
+    .research-output-content h2 { font-size: 1.5rem; }
+    .research-output-content h3 { font-size: 1.2rem; }
+    .research-output-content p { margin-bottom: 1rem; color: #000; }
+    .research-output-content ul { list-style-type: disc; margin-right: 1.5rem; margin-left: 1.5rem; color: #000; }
+
+    .loader { border: 8px solid var(--secondary-color); border-top: 8px solid var(--accent-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .image-placeholder { display: flex; align-items: center; justify-content: center; border: 2px dashed var(--accent-color); border-radius: 0.5rem; padding: 2rem 1rem; margin: 1rem 0; text-align: center; color: var(--accent-color); font-weight: 600; cursor: help; }
+    .inserted-image { width: 100%; max-width: 400px; height: auto; border-radius: 0.5rem; margin: 1rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+    .image-panel { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; }
+    #imageGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
+    #imageGrid .image-container { position: relative; cursor: pointer; }
+    #imageGrid img { width: 100%; height: 80px; object-fit: cover; border-radius: 0.5rem; transition: transform 0.3s ease; }
+    #imageGrid .image-container:hover img { transform: scale(1.05); }
+    #imageGrid .image-number { position: absolute; top: 0.25rem; right: 0.25rem; background-color: rgba(0,0,0,0.7); color: white; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
+    
+    #placementModal { z-index: 100; }
+    .modal-content { background-color: var(--primary-color); border: 1px solid var(--border-color); }
+    .slot-button { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    .slot-button:hover { background-color: var(--accent-color); color: var(--primary-color); }
+    .slot-button:disabled { background-color: #2a3b52; color: var(--subtext-color); cursor: not-allowed; }
+
+  </style>
+</head>
+<body>
+  <canvas id="ai-background"></canvas>
+  <div class="page-container w-full h-screen p-4 lg:p-8 grid lg:grid-cols-[400px_1fr] gap-8 relative z-10">
+    
+    <!-- Left Sidebar (Controls + Image Panel) -->
+    <div class="control-panel w-full p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col overflow-y-auto">
+      <div>
+        <h2 class="panel-title text-2xl font-bold text-center mb-6"><i class="fas fa-robot"></i> <span id="appTitle">مساعد الأبحاث الذكي</span></h2>
+        <div class="lang-switch flex justify-center gap-2 mb-6">
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all active" id="arBtn" type="button">العربية</button>
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all" id="frBtn" type="button">Français</button>
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all" id="enBtn" type="button">English</button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label for="topicInput" id="topicLabel" class="block mb-2 text-lg font-semibold">أدخل موضوع البحث</label>
+                <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" />
+            </div>
+            <button id="generateBtn" class="w-full py-3 px-6 rounded-lg text-lg font-bold cursor-pointer transition-all flex items-center justify-center gap-2">
+              <span id="generateBtnText">إنشاء البحث</span>
+              <i id="generateBtnIcon" class="fas fa-cogs"></i>
+            </button>
+            <button id="downloadPdfBtn" disabled class="w-full py-3 px-6 rounded-lg text-lg font-bold cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-file-pdf"></i> <span id="downloadBtnText">تحميل كملف PDF</span>
+            </button>
+        </div>
+      </div>
+      
+      <!-- Image Panel (Inside Sidebar) -->
+      <div class="image-panel mt-auto">
+          <h3 class="panel-title text-xl font-bold text-center mb-4" id="imageSidebarTitle">معرض الصور</h3>
+          <div id="imagePanelLoader" class="hidden items-center justify-center h-24">
+              <div class="loader" style="width: 40px; height: 40px; border-width: 4px;"></div>
+          </div>
+          <div id="imageGrid">
+              <!-- Images will be dynamically inserted here -->
+          </div>
+      </div>
+    </div>
+
+    <!-- Research Output -->
+    <div id="researchOutputContainer" class="research-output-container rounded-lg shadow-lg p-8 overflow-y-auto w-full">
+        <div id="outputPlaceholder" class="hidden items-center justify-center h-full text-center text-gray-400">
+            <i class="fas fa-book-open fa-4x mb-4"></i>
+            <h3 id="placeholderTitle" class="text-2xl font-bold text-gray-500">سيظهر بحثك هنا</h3>
+            <p id="placeholderText" class="mt-2">أدخل موضوعاً واضغط على زر الإنشاء لتبدأ.</p>
+        </div>
+        <div id="loader" class="hidden items-center justify-center h-full">
+            <div class="loader"></div>
+        </div>
+        <div id="researchOutputContent" class="research-output-content">
+            <h1>أشرف حكيمي: من شوارع مدريد إلى قمة المجد الكروي</h1>
+            <p>أشرف حكيمي هو أحد أشهر لاعبي كرة القدم في العالم اليوم وهو فخر للمغرب وللعرب. ولد حكيمي في إسبانيا من أبوين مغربيين واختار تمثيل المغرب في كرة القدم. في هذا البحث البسيط سنتعرف على مسيرة هذا النجم اللامع من بداياته حتى وصوله إلى العالمية.</p>
+            <div class="image-placeholder" id="image-slot-1" data-slot-number="1" title="مكان مخصص للصورة رقم 1"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 1 هنا</span></div>
+            <h2>البدايات مع ريال مدريد</h2>
+            <p>بدأ أشرف حكيمي مسيرته الكروية في سن مبكرة، حيث انضم إلى أكاديمية نادي ريال مدريد الإسباني العريق وهو طفل. تدرج في جميع الفئات السنية للنادي، مظهرًا موهبة استثنائية في مركز الظهير الأيمن، حيث تميز بسرعته الفائقة وقدرته على الهجوم والدفاع بكفاءة عالية. في عام 2017، تحقق حلمه باللعب مع الفريق الأول لريال مدريد، ليصبح أول لاعب مغربي يمثل النادي الملكي.</p>
+            <h2>التألق في أوروبا: دورتموند، إنتر ميلان، وباريس سان جيرمان</h2>
+            <p>بحثًا عن فرصة للعب بشكل أساسي، انتقل حكيمي إلى نادي بوروسيا دورتموند الألماني على سبيل الإعارة، وهناك انفجرت موهبته بشكل كبير، حيث أصبح من أفضل الأظهرة في العالم. بعد ذلك، انتقل إلى نادي إنتر ميلان الإيطالي وساهم في فوزه بلقب الدوري الإيطالي. حاليًا، يلعب حكيمي مع نادي باريس سان جيرمان الفرنسي، أحد أكبر الأندية في أوروبا، ويواصل تقديم مستويات رائعة.</p>
+            <div class="image-placeholder" id="image-slot-2" data-slot-number="2" title="مكان مخصص للصورة رقم 2"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 2 هنا</span></div>
+            <h2>أسد الأطلس: مسيرته مع المنتخب المغربي</h2>
+            <p>على الرغم من ولادته في إسبانيا، اختار أشرف حكيمي بقلبه أن يمثل وطنه الأم، المغرب. أصبح ركيزة أساسية في تشكيلة "أسود الأطلس"، وشارك معهم في العديد من البطولات الهامة. كانت أبرز محطاته مع المنتخب هي المشاركة التاريخية في كأس العالم 2022 في قطر، حيث كان له دور كبير في وصول المغرب إلى نصف النهائي كأول منتخب عربي وإفريقي يحقق هذا الإنجاز، وأصبحت ركلته الترجيحية الحاسمة ضد إسبانيا أيقونة خالدة في ذاكرة المغاربة.</p>
+            <h2>خاتمة</h2>
+            <p>أشرف حكيمي ليس مجرد لاعب كرة قدم موهوب، بل هو قصة نجاح ملهمة للشباب العربي والمغربي. بفضل عزيمته واجتهاده، استطاع أن يصل إلى أعلى المستويات في عالم كرة القدم، وأصبح سفيرًا مشرفًا لبلده، يرفع راية المغرب عاليًا في المحافل الدولية.</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- Placement Modal -->
+  <div id="placementModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4">
+      <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-lg">
+          <h4 id="modalTitle" class="text-lg font-bold text-center mb-4">اختر مكان وضع الصورة</h4>
+          <div id="modalSlots" class="flex flex-wrap justify-center gap-3">
+              <!-- Slot buttons will be inserted here -->
+          </div>
+          <button id="modalCloseBtn" class="w-full mt-6 p-2 rounded-lg text-sm" style="background-color: var(--secondary-color);">إغلاق</button>
+      </div>
+  </div>
+
+  <script type="module">
+    // --- GLOBAL STATE & CONFIG ---
+    const PIXABAY_API_KEY = "26017729-a85e69107346032167d64b5ee";
+    let currentLang = 'ar';
+    let isLoading = false;
+    let researchTopic = 'أشرف حكيمي';
+    let selectedImageSrc = null;
+
+    const translations = {
+        ar: {
+            appTitle: "مساعد الأبحاث الذكي",
+            topicLabel: "أدخل موضوع البحث",
+            topicPlaceholder: "مثال: دورة الماء في الطبيعة",
+            generateBtn: "إنشاء البحث",
+            generatingBtn: "جاري الإنشاء...",
+            downloadBtn: "تحميل كملف PDF",
+            placeholderTitle: "سيظهر بحثك هنا",
+            placeholderText: "أدخل موضوعاً واضغط على زر الإنشاء لتبدأ.",
+            errorTitle: "حدث خطأ",
+            errorMessage: "عذراً، لم نتمكن من إنشاء البحث. يرجى المحاولة مرة أخرى.",
+            imageSidebarTitle: "معرض الصور",
+            imageExampleText: "مثال لصورة",
+            imagePlaceholderText: "ضع الصورة رقم {num} هنا",
+            modalTitle: "اختر مكان وضع الصورة",
+            modalSlotButton: "المكان رقم {num}",
+            modalClose: "إغلاق",
+        },
+        fr: {
+            appTitle: "Assistant de Recherche IA",
+            topicLabel: "Entrez le sujet de recherche",
+            topicPlaceholder: "Ex: Le système solaire",
+            generateBtn: "Générer la recherche",
+            generatingBtn: "Génération en cours...",
+            downloadBtn: "Télécharger en PDF",
+            placeholderTitle: "Votre recherche apparaîtra ici",
+            placeholderText: "Entrez un sujet et cliquez sur générer pour commencer.",
+            errorTitle: "Une erreur est survenue",
+            errorMessage: "Désolé, nous n'avons pas pu générer la recherche. Veuillez réessayer.",
+            imageSidebarTitle: "Galerie d'images",
+            imageExampleText: "Exemple d'image",
+            imagePlaceholderText: "Placer l'image #{num} ici",
+            modalTitle: "Choisissez un emplacement pour l'image",
+            modalSlotButton: "Emplacement #{num}",
+            modalClose: "Fermer",
+        },
+        en: {
+            appTitle: "AI Research Assistant",
+            topicLabel: "Enter Research Topic",
+            topicPlaceholder: "e.g., The Water Cycle",
+            generateBtn: "Generate Research",
+            generatingBtn: "Generating...",
+            downloadBtn: "Download as PDF",
+            placeholderTitle: "Your Research Will Appear Here",
+            placeholderText: "Enter a topic and press generate to start.",
+            errorTitle: "An Error Occurred",
+            errorMessage: "Sorry, we couldn't generate the research. Please try again.",
+            imageSidebarTitle: "Image Gallery",
+            imageExampleText: "Image Example",
+            imagePlaceholderText: "Place Image #{num} Here",
+            modalTitle: "Choose a spot for the image",
+            modalSlotButton: "Spot #{num}",
+            modalClose: "Close",
+        }
+    };
+
+    // --- DOM ELEMENTS ---
+    const dom = {
+        appTitle: document.getElementById('appTitle'),
+        topicLabel: document.getElementById('topicLabel'),
+        topicInput: document.getElementById('topicInput'),
+        generateBtn: document.getElementById('generateBtn'),
+        generateBtnText: document.getElementById('generateBtnText'),
+        generateBtnIcon: document.getElementById('generateBtnIcon'),
+        downloadPdfBtn: document.getElementById('downloadPdfBtn'),
+        downloadBtnText: document.getElementById('downloadBtnText'),
+        researchOutputContainer: document.getElementById('researchOutputContainer'),
+        outputPlaceholder: document.getElementById('outputPlaceholder'),
+        placeholderTitle: document.getElementById('placeholderTitle'),
+        placeholderText: document.getElementById('placeholderText'),
+        loader: document.getElementById('loader'),
+        researchOutputContent: document.getElementById('researchOutputContent'),
+        langButtons: { ar: document.getElementById('arBtn'), fr: document.getElementById('frBtn'), en: document.getElementById('enBtn') },
+        imageSidebarTitle: document.getElementById('imageSidebarTitle'),
+        imagePanelLoader: document.getElementById('imagePanelLoader'),
+        imageGrid: document.getElementById('imageGrid'),
+        placementModal: document.getElementById('placementModal'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalSlots: document.getElementById('modalSlots'),
+        modalCloseBtn: document.getElementById('modalCloseBtn'),
+    };
+
+    // --- UI & LOGIC FUNCTIONS ---
+
+    function setLoading(loading) {
+        isLoading = loading;
+        dom.generateBtn.disabled = loading;
+        dom.topicInput.disabled = loading;
+        dom.generateBtnText.textContent = loading ? translations[currentLang].generatingBtn : translations[currentLang].generateBtn;
+        dom.generateBtnIcon.className = `fas ${loading ? 'fa-spinner fa-spin' : 'fa-cogs'}`;
+        if(loading) {
+            dom.outputPlaceholder.classList.add('hidden');
+            dom.researchOutputContent.classList.add('hidden');
+            dom.loader.classList.remove('hidden');
+            dom.loader.classList.add('flex');
+        } else {
+            dom.loader.classList.add('hidden');
+            dom.loader.classList.remove('flex');
+        }
+    }
+    
+    function updateLanguageUI() {
+        const t = translations[currentLang];
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        
+        Object.keys(t).forEach(key => {
+            const element = dom[key];
+            if (element) element.textContent = t[key];
+        });
+        dom.topicInput.placeholder = t.topicPlaceholder;
+        dom.modalCloseBtn.textContent = t.modalClose;
+        
+        dom.researchOutputContainer.classList.remove('lang-ar', 'lang-fr', 'lang-en');
+        dom.researchOutputContainer.classList.add(`lang-${currentLang}`);
+
+        for (const lang in dom.langButtons) {
+            dom.langButtons[lang].classList.toggle('active', lang === currentLang);
+        }
+        processPlaceholdersInExistingContent();
+    }
+
+    function switchLang(lang) {
+        currentLang = lang;
+        updateLanguageUI();
+        fetchRealImages(researchTopic || translations[currentLang].imageExampleText);
+    }
+
+    function processPlaceholdersInExistingContent() {
+        const t = translations[currentLang];
+        const placeholders = dom.researchOutputContent.querySelectorAll('[data-placeholder-id]');
+        placeholders.forEach(p => {
+            const num = p.getAttribute('data-placeholder-id');
+            const textElement = p.querySelector('.placeholder-text');
+            if (textElement) {
+                textElement.textContent = t.imagePlaceholderText.replace('{num}', num);
+            }
+        });
+    }
+    
+    function processApiResponse(html) {
+        const t = translations[currentLang];
+        return html.replace(/\[IMAGE_PLACEHOLDER_(\d+)]/g, (match, num) => {
+            const placeholderText = t.imagePlaceholderText.replace('{num}', num);
+            return `<div class="image-placeholder" id="image-slot-${num}" data-slot-number="${num}" data-placeholder-id="${num}" title="مكان مخصص للصورة رقم ${num}"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">${placeholderText}</span></div>`;
+        });
+    }
+
+    function displayPlaceholderImages(topic) {
+        dom.imageGrid.innerHTML = '';
+        dom.imagePanelLoader.classList.add('hidden');
+        dom.imagePanelLoader.classList.remove('flex');
+        const imageCount = 6;
+        const placeholderText = translations[currentLang].imageExampleText;
+
+        for (let i = 1; i <= imageCount; i++) {
+            const text = encodeURIComponent(`${placeholderText} ${i}`);
+            const imageUrl = `https://placehold.co/400x300/1d2939/e0e0e0?text=${text}`;
+            createImageElement(imageUrl, `${placeholderText} ${i}`, i);
+        }
+    }
+
+    function createImageElement(src, alt, number) {
+        const container = document.createElement('div');
+        container.className = 'image-container';
+        container.onclick = () => openPlacementModal(src);
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = alt;
+        
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'image-number';
+        numberDiv.textContent = number;
+
+        container.appendChild(img);
+        container.appendChild(numberDiv);
+        dom.imageGrid.appendChild(container);
+    }
+
+    async function fetchRealImages(topic) {
+        dom.imageGrid.innerHTML = '';
+        dom.imagePanelLoader.classList.remove('hidden');
+        dom.imagePanelLoader.classList.add('flex');
+
+        const query = encodeURIComponent(topic);
+        // FIX: Added lang parameter to the API URL
+        const apiUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${query}&image_type=photo&per_page=6&lang=${currentLang}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Pixabay API request failed');
+            const data = await response.json();
+
+            if (data.hits && data.hits.length > 0) {
+                data.hits.forEach((hit, index) => {
+                    createImageElement(hit.webformatURL, hit.tags, index + 1);
+                });
+            } else {
+                displayPlaceholderImages(topic); // Fallback to placeholders if no images found
+            }
+        } catch (error) {
+            console.error("Error fetching images from Pixabay:", error);
+            displayPlaceholderImages(topic); // Fallback on error
+        } finally {
+            dom.imagePanelLoader.classList.add('hidden');
+            dom.imagePanelLoader.classList.remove('flex');
+        }
+    }
+
+    function openPlacementModal(imageSrc) {
+        selectedImageSrc = imageSrc;
+        dom.modalSlots.innerHTML = '';
+        const t = translations[currentLang];
+        
+        const availableSlots = dom.researchOutputContent.querySelectorAll('.image-placeholder:not(.filled)');
+        
+        if (availableSlots.length === 0) {
+            alert("لا توجد أماكن فارغة لوضع الصور.");
+            return;
+        }
+
+        availableSlots.forEach(slot => {
+            const slotNum = slot.dataset.slotNumber;
+            const btn = document.createElement('button');
+            btn.className = 'slot-button p-3 rounded-lg font-semibold';
+            btn.textContent = t.modalSlotButton.replace('{num}', slotNum);
+            btn.onclick = () => insertImage(slotNum);
+            dom.modalSlots.appendChild(btn);
+        });
+        
+        dom.modalTitle.textContent = t.modalTitle;
+        dom.placementModal.classList.remove('hidden');
+        dom.placementModal.classList.add('flex');
+    }
+
+    function closePlacementModal() {
+        dom.placementModal.classList.add('hidden');
+        dom.placementModal.classList.remove('flex');
+        selectedImageSrc = null;
+    }
+
+    function insertImage(slotNum) {
+        if (!selectedImageSrc) return;
+        
+        const targetSlot = document.getElementById(`image-slot-${slotNum}`);
+        if (targetSlot && !targetSlot.classList.contains('filled')) {
+            targetSlot.innerHTML = `<img src="${selectedImageSrc}" alt="${researchTopic}" class="inserted-image">`;
+            targetSlot.classList.add('filled');
+            targetSlot.classList.remove('image-placeholder');
+        }
+        closePlacementModal();
+    }
+
+    async function generateResearch() {
+        researchTopic = dom.topicInput.value.trim();
+        if (!researchTopic) return;
+
+        setLoading(true);
+        dom.downloadPdfBtn.disabled = true;
+        fetchRealImages(researchTopic);
+
+        const languageMap = { ar: 'Arabic', en: 'English', fr: 'French' };
+        const prompt = `Please act as a helpful research assistant for a school student.
+        Write a simple and easy-to-understand research paper on the following topic: "${researchTopic}".
+        The paper must be written in ${languageMap[currentLang]}.
+        The structure should be clear and include a title, introduction, 2-3 main sections, and a conclusion.
+        IMPORTANT: Intersperse 2 to 3 image placeholders in the format [IMAGE_PLACEHOLDER_1], [IMAGE_PLACEHOLDER_2], etc., at logical points within the text where an image would be relevant.
+        Format the entire output using Markdown. Use '#' for the main title, '##' for section headings.`;
+
+        try {
+            const apiKey = ""; // Injected by environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+            
+            const result = await response.json();
+            const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (generatedText) {
+                const processedHtml = processApiResponse(marked.parse(generatedText));
+                dom.researchOutputContent.innerHTML = processedHtml;
+                dom.researchOutputContent.classList.remove('hidden');
+                dom.downloadPdfBtn.disabled = false;
+            } else {
+                throw new Error("No content received from API.");
+            }
+        } catch (error) {
+            console.error("Error generating research:", error);
+            const t = translations[currentLang];
+            dom.researchOutputContent.innerHTML = `<h2 class="text-red-500">${t.errorTitle}</h2><p>${t.errorMessage}</p>`;
+            dom.researchOutputContent.classList.remove('hidden');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // --- EVENT LISTENERS ---
+    dom.generateBtn.onclick = generateResearch;
+    dom.langButtons.ar.onclick = () => switchLang('ar');
+    dom.langButtons.fr.onclick = () => switchLang('fr');
+    dom.langButtons.en.onclick = () => switchLang('en');
+    dom.modalCloseBtn.onclick = closePlacementModal;
+    dom.placementModal.onclick = (e) => { if (e.target === dom.placementModal) closePlacementModal(); };
+
+    dom.downloadPdfBtn.onclick = () => {
+        if (isLoading || !researchTopic) return;
+        
+        const element = dom.researchOutputContainer;
+        
+        // Temporarily modify styles for full-content PDF export
+        const originalHeight = element.style.height;
+        const originalOverflow = element.style.overflowY;
+        const originalBorder = element.style.border; // Save original border
+        element.style.height = 'auto';
+        element.style.overflowY = 'visible';
+        element.style.border = 'none'; // Remove border for PDF
+
+        const opt = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `${researchTopic.replace(/ /g, '_')}_${currentLang}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().from(element).set(opt).save().then(() => {
+            // Restore original styles after PDF is saved
+            element.style.height = originalHeight;
+            element.style.overflowY = originalOverflow;
+            element.style.border = originalBorder; // Restore border
+        }).catch((err) => {
+            console.error("PDF generation failed:", err);
+            // Restore original styles even if there's an error
+            element.style.height = originalHeight;
+            element.style.overflowY = originalOverflow;
+            element.style.border = originalBorder; // Restore border
+        });
+    };
+
+    // --- INITIALIZATION ---
+    function initializeApp() {
+        updateLanguageUI();
+        dom.topicInput.value = researchTopic;
+        dom.downloadPdfBtn.disabled = false;
+        dom.outputPlaceholder.classList.add('hidden');
+        fetchRealImages(researchTopic);
+    }
+
+    initializeApp();
+  </script>
+  <script>
+      // --- AI Background Animation Script (unchanged) ---
+      const canvas = document.getElementById('ai-background');
+      const ctx = canvas.getContext('2d');
+      let width, height, particles = [], particleCount = window.innerWidth < 768 ? 70 : 150; 
+      const connectDistance = 140;
+      function resizeCanvas() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; particleCount = window.innerWidth < 768 ? 70 : 150; }
+      class Particle {
+          constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 2.5 + 1; this.speedX = (Math.random() * 2 - 1) * 0.3; this.speedY = (Math.random() * 2 - 1) * 0.3; this.color = 'rgba(0, 170, 255, 0.8)'; }
+          update() { if (this.x > width || this.x < 0) { this.speedX = -this.speedX; } if (this.y > height || this.y < 0) { this.speedY = -this.speedY; } this.x += this.speedX; this.y += this.speedY; }
+          draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+      }
+      function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } }
+      function connect() {
+          let opacityValue = 1;
+          for (let a = 0; a < particles.length; a++) {
+              for (let b = a; b < particles.length; b++) {
+                  let distance = Math.sqrt(Math.pow(particles[a].x - particles[b].x, 2) + Math.pow(particles[a].y - particles[b].y, 2));
+                  if (distance < connectDistance) {
+                      opacityValue = 1 - (distance / connectDistance);
+                      ctx.strokeStyle = `rgba(0, 170, 255, ${opacityValue})`;
+                      ctx.lineWidth = 1;
+                      ctx.beginPath(); ctx.moveTo(particles[a].x, particles[a].y); ctx.lineTo(particles[b].x, particles[b].y); ctx.stroke();
+                  }
+              }
+          }
+      }
+      function animate() { ctx.clearRect(0, 0, width, height); for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); } connect(); requestAnimationFrame(animate); }
+      window.addEventListener('resize', () => { resizeCanvas(); init(); });
+      resizeCanvas(); init(); animate();
+  </script>
+</body>
+</html>
