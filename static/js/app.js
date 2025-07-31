@@ -375,6 +375,15 @@ async function downloadPDF() {
         // Add PDF-specific classes before generation
         element.classList.add('pdf-generation');
         
+        // Force hide all size control buttons
+        const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
+        sizeControls.forEach(control => {
+            control.style.display = 'none';
+            control.style.visibility = 'hidden';
+            control.style.opacity = '0';
+            control.style.height = '0';
+        });
+        
         const opt = {
             margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
             filename: `research-${currentLanguage}-${Date.now()}.pdf`,
@@ -419,6 +428,15 @@ async function downloadPDF() {
         elements.downloadPdfBtn.innerHTML = originalDownloadText;
         elements.downloadPdfBtn.disabled = false;
         element.classList.remove('pdf-generation');
+        
+        // Restore size control buttons visibility
+        const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
+        sizeControls.forEach(control => {
+            control.style.display = '';
+            control.style.visibility = '';
+            control.style.opacity = '';
+            control.style.height = '';
+        });
     }
 }
 

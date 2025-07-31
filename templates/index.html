@@ -188,6 +188,23 @@
     /* Hide size control buttons when generating PDF */
     .pdf-generation .image-size-controls {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* Additional rules to ensure buttons are hidden in PDF */
+    .pdf-generation .size-btn {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Ensure no margins/padding from hidden controls */
+    .pdf-generation .image-container-pdf .image-size-controls {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0 !important;
     }
 
   </style>
