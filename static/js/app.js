@@ -384,20 +384,6 @@ async function downloadPDF() {
             control.style.height = '0';
         });
         
-        // Remove dashed borders from image containers
-        const imageContainers = element.querySelectorAll('.image-container-pdf');
-        imageContainers.forEach(container => {
-            container.style.border = 'none';
-            container.style.backgroundColor = 'transparent';
-            container.style.padding = '0';
-        });
-        
-        // Hide empty image placeholders
-        const placeholders = element.querySelectorAll('.image-placeholder');
-        placeholders.forEach(placeholder => {
-            placeholder.style.display = 'none';
-        });
-        
         const opt = {
             margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
             filename: `research-${currentLanguage}-${Date.now()}.pdf`,
@@ -450,20 +436,6 @@ async function downloadPDF() {
             control.style.visibility = '';
             control.style.opacity = '';
             control.style.height = '';
-        });
-        
-        // Restore image container borders
-        const imageContainers = element.querySelectorAll('.image-container-pdf');
-        imageContainers.forEach(container => {
-            container.style.border = '';
-            container.style.backgroundColor = '';
-            container.style.padding = '';
-        });
-        
-        // Restore image placeholders
-        const placeholders = element.querySelectorAll('.image-placeholder');
-        placeholders.forEach(placeholder => {
-            placeholder.style.display = '';
         });
     }
 }
