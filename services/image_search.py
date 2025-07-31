@@ -17,7 +17,7 @@ class ImageSearchService:
             
             # Search for images using DuckDuckGo
             results = list(self.ddgs.images(
-                keywords=search_query,
+                search_query,
                 region="wt-wt",  # Worldwide
                 safesearch="moderate",
                 size="medium",
