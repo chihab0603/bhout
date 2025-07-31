@@ -182,53 +182,93 @@ Expectations indicate that {topic} will witness significant growth and developme
 
 In conclusion of this comprehensive research, we can say that {topic} represents a vital and important field that deserves attention and in-depth study. We have reviewed in this research the different aspects of the subject, starting from basic definitions and theoretical foundations, through practical applications and achieved benefits, and ending with recent developments and future expectations. This comprehensive understanding enables us to appreciate the importance of the subject and its enormous potential in improving our lives and developing our societies. We recommend continuing research and study in this field to fully benefit from its potential and diverse opportunities."""
                 else:
-                    # French fallback
+                    # French fallback - comprehensive version
                     content = f"""# {topic}
 
 ## Introduction
-Le sujet de {topic} est important et mérite une étude approfondie.
+
+Le sujet de {topic} représente l'un des domaines d'étude les plus vitaux et significatifs de notre monde contemporain, occupant une position proéminente dans de nombreux domaines scientifiques et pratiques. Comprendre ce sujet et analyser ses différentes dimensions est essentiel pour suivre le rythme des développements modernes et capitaliser sur les opportunités disponibles. Dans cette recherche complète, nous effectuerons un examen détaillé et approfondi de {topic}, explorant ses définitions, applications pratiques, défis auxquels il fait face, et perspectives d'avenir. Notre objectif est de fournir une compréhension holistique et intégrée qui aide les lecteurs à appréhender tous les aspects de ce sujet important.
 
 [IMAGE_PLACEHOLDER_1]
 
-## Section 1: Définition
-Cette section couvre les définitions de base liées à {topic}.
+## Section 1: Définition et Fondements Conceptuels
+
+### Définition Complète
+
+{topic} peut être défini comme un vaste domaine de connaissance englobant de nombreux éléments et composants interconnectés. Cette définition nécessite une compréhension profonde des fondements théoriques et pratiques sur lesquels le sujet est construit. Grâce à une analyse détaillée, nous constatons que {topic} inclut de multiples aspects qui interagissent entre eux pour former un système intégré.
+
+### Fondements Théoriques
+
+Les fondements théoriques de {topic} reposent sur un ensemble de principes fondamentaux qui ont été développés au cours de nombreuses années de recherche et d'étude. Ces principes forment le cadre général qui régit notre compréhension du sujet et ses diverses applications.
+
+### Éléments Essentiels
+
+{topic} se compose de plusieurs éléments essentiels qui interagissent dans un système complexe et équilibré. Chaque élément a son rôle spécifique et sa fonction particulière, mais ils travaillent tous ensemble pour atteindre les objectifs globaux du sujet.
+
+## Section 2: Applications et Utilisations Pratiques
+
+### Applications dans Différents Domaines
+
+{topic} trouve ses applications dans des domaines variés et multiples, ce qui confirme son importance et sa valeur pratique. Dans chaque domaine, les principes et fondements de {topic} sont appliqués de manières différentes qui s'adaptent à la nature et aux besoins de chaque domaine.
 
 [IMAGE_PLACEHOLDER_2]
 
+### Avantages et Bénéfices
+
+Les avantages qui peuvent être obtenus de l'application des principes de {topic} dans la vie pratique sont multiples. Ces avantages incluent des aspects économiques, sociaux et techniques, rendant le sujet de grande valeur dans la société moderne.
+
+### Défis dans l'Application
+
+Malgré les nombreux avantages, l'application de {topic} fait face à plusieurs défis et difficultés qui nécessitent des solutions innovantes et réfléchies. Ces défis peuvent être techniques, économiques ou sociaux, et nécessitent une approche complète et intégrée pour les traiter efficacement.
+
+## Section 3: Tendances Modernes et Développements Futurs
+
+### Développements Récents
+
+Le domaine de {topic} connaît des développements continus et accélérés, avec de nouvelles méthodes et techniques qui apparaissent constamment. Ces développements ouvrent de nouveaux horizons et fournissent des solutions innovantes aux défis existants.
+
+### Perspective Future
+
+Les prévisions indiquent que {topic} connaîtra une croissance et un développement significatifs dans les années à venir. Cette croissance attendue dépend de plusieurs facteurs, notamment l'avancement technologique et l'investissement dans la recherche et le développement.
+
 ## Conclusion
-En conclusion, {topic} est un sujet riche en informations utiles."""
+
+En conclusion de cette recherche complète, nous pouvons dire que {topic} représente un domaine vital et important qui mérite attention et étude approfondie. Nous avons passé en revue dans cette recherche les différents aspects du sujet, en commençant par les définitions de base et les fondements théoriques, en passant par les applications pratiques et les avantages obtenus, et en terminant par les développements récents et les attentes futures. Cette compréhension complète nous permet d'apprécier l'importance du sujet et son énorme potentiel pour améliorer nos vies et développer nos sociétés."""
             
             # Process the content to add image slots
-            content = self._process_image_placeholders(content)
+            content = self._process_image_placeholders(content, language)
             
             return content
             
         except Exception as e:
             raise Exception(f"Research generation error: {str(e)}")
     
-    def _process_image_placeholders(self, content):
+    def _process_image_placeholders(self, content, language='ar'):
         """Convert [IMAGE_PLACEHOLDER_X] to proper HTML image slots"""
         import re
         
-        # Replace [IMAGE_PLACEHOLDER_1] with proper HTML
-        content = re.sub(
-            r'\[IMAGE_PLACEHOLDER_1\]',
-            '<div class="image-placeholder" id="image-slot-1" data-slot-number="1" title="مكان مخصص للصورة رقم 1"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 1 هنا</span></div>',
-            content
-        )
+        # Language-specific placeholder texts
+        placeholder_texts = {
+            'ar': {
+                'title': 'مكان مخصص للصورة رقم',
+                'text': 'ضع الصورة رقم {} هنا'
+            },
+            'en': {
+                'title': 'Image slot number',
+                'text': 'Place image {} here'
+            },
+            'fr': {
+                'title': 'Emplacement d\'image numéro',
+                'text': 'Placez l\'image {} ici'
+            }
+        }
         
-        content = re.sub(
-            r'\[IMAGE_PLACEHOLDER_2\]',
-            '<div class="image-placeholder" id="image-slot-2" data-slot-number="2" title="مكان مخصص للصورة رقم 2"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 2 هنا</span></div>',
-            content
-        )
+        texts = placeholder_texts.get(language, placeholder_texts['ar'])
         
-        # Add more placeholders if needed
-        for i in range(3, 6):
-            content = re.sub(
-                rf'\[IMAGE_PLACEHOLDER_{i}\]',
-                f'<div class="image-placeholder" id="image-slot-{i}" data-slot-number="{i}" title="مكان مخصص للصورة رقم {i}"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم {i} هنا</span></div>',
-                content
-            )
+        # Replace placeholders with proper HTML
+        for i in range(1, 6):
+            pattern = rf'\[IMAGE_PLACEHOLDER_{i}\]'
+            replacement = f'<div class="image-placeholder" id="image-slot-{i}" data-slot-number="{i}" title="{texts["title"]} {i}"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">{texts["text"].format(i)}</span></div>'
+            content = re.sub(pattern, replacement, content)
         
         return content

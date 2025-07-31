@@ -63,7 +63,28 @@
         font-family: 'Cairo', sans-serif; 
         height: 90vh;
     }
-    .research-output-container.lang-fr, .research-output-container.lang-en { font-family: 'Lato', sans-serif; }
+    
+    /* Language-specific styles */
+    .research-output-container.content-lang-ar { 
+        direction: rtl; 
+        text-align: right; 
+        font-family: 'Cairo', sans-serif; 
+    }
+    .research-output-container.content-lang-en { 
+        direction: ltr; 
+        text-align: left; 
+        font-family: 'Lato', sans-serif; 
+    }
+    .research-output-container.content-lang-fr { 
+        direction: ltr; 
+        text-align: left; 
+        font-family: 'Lato', sans-serif; 
+    }
+    
+    /* Interface direction based on selected language */
+    [lang="ar"] .control-panel { direction: rtl; text-align: right; }
+    [lang="en"] .control-panel { direction: ltr; text-align: left; }
+    [lang="fr"] .control-panel { direction: ltr; text-align: left; }
 
     .research-output-content { 
         line-height: 1.6; 

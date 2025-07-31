@@ -84,7 +84,7 @@ const elements = {
     cancelText: document.getElementById('cancelText')
 };
 
-// Language switching for content generation only
+// Language switching for content generation and interface direction
 function switchLanguage(lang) {
     currentLanguage = lang;
     
@@ -92,15 +92,20 @@ function switchLanguage(lang) {
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(lang + 'Btn').classList.add('active');
     
-    // Keep interface always in Arabic (RTL)
-    document.documentElement.setAttribute('dir', 'rtl');
-    document.documentElement.setAttribute('lang', 'ar');
+    // Update text direction and language based on selection
+    if (lang === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.documentElement.setAttribute('lang', 'ar');
+    } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', lang);
+    }
     
     // Update container class to show selected language for content
     elements.researchOutputContainer.className = `research-output-container content-lang-${lang} rounded-lg shadow-lg p-8 overflow-y-auto w-full`;
     
-    // Keep all interface text in Arabic
-    const t = translations['ar']; // Always use Arabic for interface
+    // Update interface text based on selected language
+    const t = translations[lang];
     elements.appTitle.textContent = t.appTitle;
     elements.topicLabel.textContent = t.topicLabel;
     elements.topicInput.placeholder = t.topicPlaceholder;
@@ -119,9 +124,15 @@ function switchLanguage(lang) {
 // Add language indicator function
 function updateLanguageIndicator(lang) {
     const langNames = {
-        'ar': 'العربية',
-        'en': 'الإنجليزية', 
-        'fr': 'الفرنسية'
+        'ar': { ar: 'العربية', en: 'Arabic', fr: 'Arabe' },
+        'en': { ar: 'الإنجليزية', en: 'English', fr: 'Anglais' }, 
+        'fr': { ar: 'الفرنسية', en: 'French', fr: 'Français' }
+    };
+    
+    const labels = {
+        'ar': 'لغة المحتوى المُنشأ',
+        'en': 'Content Language', 
+        'fr': 'Langue du Contenu'
     };
     
     // Update any existing language indicator or create one
@@ -133,7 +144,7 @@ function updateLanguageIndicator(lang) {
         elements.topicInput.parentNode.appendChild(indicator);
     }
     
-    indicator.textContent = `لغة المحتوى المُنشأ: ${langNames[lang]}`;
+    indicator.textContent = `${labels[currentLanguage]}: ${langNames[lang][currentLanguage]}`;
 }
 
 // Event listeners for language buttons
@@ -153,7 +164,7 @@ async function generateResearch() {
     elements.loader.classList.add('flex');
     
     elements.generateBtn.disabled = true;
-    elements.generateBtnText.textContent = translations['ar'].generating; // Always use Arabic for UI
+    elements.generateBtnText.textContent = translations[currentLanguage].generating;
     elements.generateBtnIcon.className = 'fas fa-spinner fa-spin';
 
     try {
@@ -190,7 +201,7 @@ async function generateResearch() {
 
     } catch (error) {
         console.error('Error generating research:', error);
-        alert(`${translations['ar'].error}: ${error.message}`); // Always use Arabic for UI
+        alert(`${translations[currentLanguage].error}: ${error.message}`);
         
         // Show placeholder again
         elements.loader.classList.add('hidden');
@@ -199,7 +210,7 @@ async function generateResearch() {
     } finally {
         // Reset button state
         elements.generateBtn.disabled = false;
-        elements.generateBtnText.textContent = translations['ar'].generateBtnText; // Always use Arabic for UI
+        elements.generateBtnText.textContent = translations[currentLanguage].generateBtnText;
         elements.generateBtnIcon.className = 'fas fa-cogs';
     }
 }
@@ -232,7 +243,7 @@ async function searchImages(topic) {
 
     } catch (error) {
         console.error('Error searching images:', error);
-        elements.imageGrid.innerHTML = `<p class="text-red-500 text-sm">${translations['ar'].error}: ${error.message}</p>`; // Always use Arabic for UI
+        elements.imageGrid.innerHTML = `<p class="text-red-500 text-sm">${translations[currentLanguage].error}: ${error.message}</p>`;
     } finally {
         elements.imagePanelLoader.classList.add('hidden');
         elements.imagePanelLoader.classList.remove('flex');
@@ -289,7 +300,12 @@ function openPlacementModal(image) {
         
         const button = document.createElement('button');
         button.className = `slot-button py-2 px-4 rounded-lg transition-colors ${isOccupied ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`;
-        button.textContent = `موقع ${slotNumber}`; // Always use Arabic for UI
+        const slotLabels = {
+            'ar': 'موقع',
+            'en': 'Slot',
+            'fr': 'Position'
+        };
+        button.textContent = `${slotLabels[currentLanguage]} ${slotNumber}`;
         button.disabled = isOccupied;
         
         if (!isOccupied) {
@@ -468,7 +484,12 @@ async function downloadPDF() {
         
     } catch (error) {
         console.error('PDF generation error:', error);
-        alert(currentLanguage === 'ar' ? 'حدث خطأ في إنشاء ملف PDF' : 'Error generating PDF');
+        const errorMessages = {
+            'ar': 'حدث خطأ في إنشاء ملف PDF',
+            'en': 'Error generating PDF',
+            'fr': 'Erreur lors de la génération du PDF'
+        };
+        alert(errorMessages[currentLanguage]);
     } finally {
         // Restore button state
         elements.downloadPdfBtn.innerHTML = originalDownloadText;
