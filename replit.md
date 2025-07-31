@@ -6,6 +6,12 @@ This is a Smart Research Assistant application that uses AI to generate comprehe
 
 Preferred communication style: Simple, everyday language.
 
+## Recent User Requests (July 31, 2025)
+- Always attempt to fetch 20 images in gallery, get available quantity if less than 20
+- Minimize side margins in PDF output for better space utilization  
+- Reduce top spacing above title and center title in PDF format
+- Reduce blue frame padding around images without affecting image content
+
 # System Architecture
 
 ## Frontend Architecture
@@ -39,6 +45,9 @@ Preferred communication style: Simple, everyday language.
   - Metadata extraction (dimensions, source, title)
   - Safe search filtering
   - Result processing and optimization
+  - **Enhanced Feature**: Always attempts to fetch 20 images using multiple search strategies
+  - **Smart Retry**: Uses different image sizes (medium/large/small) across attempts
+  - **Duplicate Prevention**: Automatically filters out duplicate image URLs
 
 ## Frontend Components
 - **Main Interface**: Dynamic content rendering with language switching
