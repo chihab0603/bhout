@@ -327,8 +327,17 @@
 
   <!-- Placement Modal -->
   <div id="placementModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4">
-      <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-lg">
+      <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-lg">
           <h4 id="modalTitle" class="text-lg font-bold text-center mb-4">اختر مكان وضع الصورة</h4>
+          
+          <!-- Image Preview Section -->
+          <div id="imagePreviewSection" class="mb-4 text-center">
+              <div class="image-preview-container bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-2">
+                  <img id="previewImage" src="" alt="معاينة الصورة" class="max-w-full max-h-32 object-contain mx-auto rounded" />
+              </div>
+              <p id="previewTitle" class="text-sm text-gray-600 dark:text-gray-300 truncate"></p>
+          </div>
+          
           <div id="modalSlots" class="flex flex-wrap justify-center gap-3">
               <!-- Dynamic slot buttons will be inserted here -->
           </div>

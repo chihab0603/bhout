@@ -241,6 +241,21 @@ function displayImages(images) {
 function openPlacementModal(image) {
     selectedImageForPlacement = image;
     
+    // Update image preview
+    const previewImage = document.getElementById('previewImage');
+    const previewTitle = document.getElementById('previewTitle');
+    
+    if (previewImage && previewTitle) {
+        previewImage.src = image.thumbnail || image.url;
+        previewTitle.textContent = image.title || 'صورة مختارة';
+        
+        // Show preview section
+        const previewSection = document.getElementById('imagePreviewSection');
+        if (previewSection) {
+            previewSection.style.display = 'block';
+        }
+    }
+    
     // Find available slots
     const slots = document.querySelectorAll('.image-placeholder');
     elements.modalSlots.innerHTML = '';
@@ -250,7 +265,7 @@ function openPlacementModal(image) {
         const isOccupied = slot.querySelector('.inserted-image') !== null;
         
         const button = document.createElement('button');
-        button.className = `slot-button py-2 px-4 rounded-lg transition-colors ${isOccupied ? '' : ''}`;
+        button.className = `slot-button py-2 px-4 rounded-lg transition-colors ${isOccupied ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`;
         button.textContent = `${currentLanguage === 'ar' ? 'موقع' : currentLanguage === 'fr' ? 'Position' : 'Slot'} ${slotNumber}`;
         button.disabled = isOccupied;
         
