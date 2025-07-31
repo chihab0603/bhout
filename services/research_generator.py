@@ -272,3 +272,65 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
             content = re.sub(pattern, replacement, content)
         
         return content
+    
+    def translate_topic(self, topic, target_language='en'):
+        """Translate topic to target language"""
+        
+        # Translation prompts for different languages
+        translation_prompts = {
+            'en': f'Translate this Arabic topic/title to clear and concise English: "{topic}". Return only the translated text without any explanation.',
+            'fr': f'Traduisez ce sujet/titre arabe en français clair et concis: "{topic}". Retournez seulement le texte traduit sans aucune explication.'
+        }
+        
+        try:
+            if self.model and GEMINI_AVAILABLE:
+                # Use Gemini for translation
+                prompt = translation_prompts.get(target_language, translation_prompts['en'])
+                response = self.model.generate_content(prompt)
+                translated_topic = response.text.strip()
+                return translated_topic
+            else:
+                # Fallback translations for common topics
+                fallback_translations = {
+                    'en': {
+                        'التلوث البيئي': 'Environmental Pollution',
+                        'الذكاء الاصطناعي': 'Artificial Intelligence',
+                        'التكنولوجيا': 'Technology',
+                        'الطب': 'Medicine',
+                        'التعليم': 'Education',
+                        'الاقتصاد': 'Economy',
+                        'البيئة': 'Environment',
+                        'الطاقة المتجددة': 'Renewable Energy',
+                        'الصحة': 'Health',
+                        'العلوم': 'Science'
+                    },
+                    'fr': {
+                        'التلوث البيئي': 'Pollution Environnementale',
+                        'الذكاء الاصطناعي': 'Intelligence Artificielle',
+                        'التكنولوجيا': 'Technologie',
+                        'الطب': 'Médecine',
+                        'التعليم': 'Éducation',
+                        'الاقتصاد': 'Économie',
+                        'البيئة': 'Environnement',
+                        'الطاقة المتجددة': 'Énergie Renouvelable',
+                        'الصحة': 'Santé',
+                        'العلوم': 'Sciences'
+                    }
+                }
+                
+                # Try to find exact match first
+                lang_dict = fallback_translations.get(target_language, fallback_translations['en'])
+                if topic in lang_dict:
+                    return lang_dict[topic]
+                
+                # Try partial match
+                for arabic_term, translation in lang_dict.items():
+                    if arabic_term in topic or topic in arabic_term:
+                        return translation
+                
+                # If no match found, return original topic
+                return topic
+                
+        except Exception as e:
+            print(f"Translation error: {str(e)}")
+            return topic

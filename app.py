@@ -41,6 +41,31 @@ def generate_research():
         logging.error(f"Error generating research: {str(e)}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/translate-topic', methods=['POST'])
+def translate_topic():
+    """Translate topic to target language using AI"""
+    try:
+        data = request.get_json()
+        topic = data.get('topic', '')
+        target_language = data.get('target_language', 'en')
+        
+        if not topic:
+            return jsonify({'success': False, 'error': 'Topic is required'})
+        
+        # Use research generator to translate the topic
+        translated_topic = research_generator.translate_topic(topic, target_language)
+        
+        return jsonify({
+            'success': True,
+            'translated_topic': translated_topic,
+            'original_topic': topic,
+            'target_language': target_language
+        })
+        
+    except Exception as e:
+        logging.error(f"Error translating topic: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/search-images', methods=['POST'])
 def search_images():
     try:

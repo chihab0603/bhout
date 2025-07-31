@@ -154,7 +154,7 @@ elements.enBtn.addEventListener('click', () => switchLanguage('en'));
 
 // Research generation
 async function generateResearch() {
-    const topic = elements.topicInput.value.trim();
+    let topic = elements.topicInput.value.trim();
     if (!topic) return;
 
     // Show loading state
@@ -168,6 +168,32 @@ async function generateResearch() {
     elements.generateBtnIcon.className = 'fas fa-spinner fa-spin';
 
     try {
+        // Translate topic if language is not Arabic
+        if (currentLanguage !== 'ar') {
+            try {
+                const translateResponse = await fetch('/api/translate-topic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        target_language: currentLanguage
+                    })
+                });
+
+                if (translateResponse.ok) {
+                    const translateData = await translateResponse.json();
+                    if (translateData.success && translateData.translated_topic) {
+                        topic = translateData.translated_topic;
+                        console.log(`Topic translated to ${currentLanguage}: ${topic}`);
+                    }
+                }
+            } catch (translateError) {
+                console.warn('Topic translation failed, using original:', translateError);
+            }
+        }
+        
         // Generate research content
         const response = await fetch('/api/generate-research', {
             method: 'POST',
