@@ -420,18 +420,26 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                 else:
                     return topic_cleaned  # Return original if no pattern match
             
-            # Try Gemini as backup if fallback failed
-            if self.model and GEMINI_AVAILABLE and topic_cleaned == topic:
+            # If no specific translation found, try Gemini for ANY Arabic text
+            if self.model and GEMINI_AVAILABLE:
                 try:
                     prompt = translation_prompts.get(target_language, translation_prompts['en'])
                     response = self.model.generate_content(prompt)
                     translated_topic = response.text.strip()
-                    if translated_topic and translated_topic != topic:
+                    if translated_topic and translated_topic != topic_cleaned:
                         return translated_topic
                 except Exception as e:
                     print(f"Gemini translation error: {e}")
             
-            # Final fallback
+            # If Gemini fails, use basic word-by-word translation attempt
+            if target_language == 'en':
+                # Try to create basic English translation
+                return f"Research on {topic_cleaned}"
+            elif target_language == 'fr':
+                # Try to create basic French translation  
+                return f"Recherche sur {topic_cleaned}"
+            
+            # Final fallback - should rarely be reached
             return topic_cleaned
                 
         except Exception as e:

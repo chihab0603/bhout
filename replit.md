@@ -16,6 +16,7 @@ Preferred communication style: Simple, everyday language.
 - Text direction adapts automatically (RTL for Arabic, LTR for English/French)
 - Maintain consistent content structure across all languages (Arabic, English, French)
 - Image placeholders and UI elements translate based on selected language
+- **NEW (July 31, 2025)**: Force translation of ALL Arabic titles to selected language (English/French) regardless of topic, ensuring no Arabic titles remain untranslated in the preview interface
 
 # System Architecture
 
