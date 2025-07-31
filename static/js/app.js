@@ -112,8 +112,8 @@ function switchLanguage(lang) {
     // Update container class to show selected language for content
     elements.researchOutputContainer.className = `research-output-container content-lang-${lang} rounded-lg shadow-lg p-8 overflow-y-auto w-full`;
     
-    // Update interface text based on selected language
-    const t = translations[lang];
+    // Keep interface always in Arabic, regardless of selected language
+    const t = translations['ar']; // Always use Arabic for interface
     elements.appTitle.textContent = t.appTitle;
     elements.topicLabel.textContent = t.topicLabel;
     elements.topicInput.placeholder = t.topicPlaceholder;
@@ -153,7 +153,7 @@ function updateLanguageIndicator(lang) {
         elements.topicInput.parentNode.appendChild(indicator);
     }
     
-    indicator.textContent = `${labels[currentLanguage]}: ${langNames[lang][currentLanguage]}`;
+    indicator.textContent = `${labels['ar']}: ${langNames[lang]['ar']}`;
 }
 
 // Event listeners for language buttons
@@ -175,7 +175,7 @@ async function translateTopic() {
     // Show loading state
     elements.translateBtn.disabled = true;
     elements.translateBtnIcon.className = 'fas fa-spinner fa-spin';
-    elements.translateBtn.title = translations[currentLanguage].translating;
+    elements.translateBtn.title = translations['ar'].translating;
 
     try {
         const response = await fetch('/api/translate-topic', {
@@ -203,7 +203,7 @@ async function translateTopic() {
         // Reset button state
         elements.translateBtn.disabled = false;
         elements.translateBtnIcon.className = 'fas fa-language';
-        elements.translateBtn.title = translations[currentLanguage].translateBtnTitle;
+        elements.translateBtn.title = translations['ar'].translateBtnTitle;
     }
 }
 
@@ -219,7 +219,7 @@ async function generateResearch() {
     elements.loader.classList.add('flex');
     
     elements.generateBtn.disabled = true;
-    elements.generateBtnText.textContent = translations[currentLanguage].generating;
+    elements.generateBtnText.textContent = translations['ar'].generating;
     elements.generateBtnIcon.className = 'fas fa-spinner fa-spin';
 
     try {
@@ -308,7 +308,7 @@ async function generateResearch() {
     } finally {
         // Reset button state
         elements.generateBtn.disabled = false;
-        elements.generateBtnText.textContent = translations[currentLanguage].generateBtnText;
+        elements.generateBtnText.textContent = translations['ar'].generateBtnText;
         elements.generateBtnIcon.className = 'fas fa-cogs';
     }
 }
