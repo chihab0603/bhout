@@ -100,15 +100,20 @@ function switchLanguage(lang) {
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(lang + 'Btn').classList.add('active');
     
-    // Keep text direction always RTL and language Arabic for interface
-    document.documentElement.setAttribute('dir', 'rtl');
-    document.documentElement.setAttribute('lang', 'ar');
+    // Update text direction and language based on selection
+    if (lang === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.documentElement.setAttribute('lang', 'ar');
+    } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', lang);
+    }
     
     // Update container class to show selected language for content
     elements.researchOutputContainer.className = `research-output-container content-lang-${lang} rounded-lg shadow-lg p-8 overflow-y-auto w-full`;
     
-    // Keep interface always in Arabic, regardless of selected language
-    const t = translations['ar']; // Always use Arabic for interface
+    // Update interface text based on selected language
+    const t = translations[lang];
     elements.appTitle.textContent = t.appTitle;
     elements.topicLabel.textContent = t.topicLabel;
     elements.topicInput.placeholder = t.topicPlaceholder;
@@ -148,7 +153,7 @@ function updateLanguageIndicator(lang) {
         elements.topicInput.parentNode.appendChild(indicator);
     }
     
-    indicator.textContent = `${labels['ar']}: ${langNames[lang]['ar']}`;
+    indicator.textContent = `${labels[currentLanguage]}: ${langNames[lang][currentLanguage]}`;
 }
 
 // Event listeners for language buttons
@@ -170,7 +175,7 @@ async function translateTopic() {
     // Show loading state
     elements.translateBtn.disabled = true;
     elements.translateBtnIcon.className = 'fas fa-spinner fa-spin';
-    elements.translateBtn.title = translations['ar'].translating;
+    elements.translateBtn.title = translations[currentLanguage].translating;
 
     try {
         const response = await fetch('/api/translate-topic', {
@@ -198,7 +203,7 @@ async function translateTopic() {
         // Reset button state
         elements.translateBtn.disabled = false;
         elements.translateBtnIcon.className = 'fas fa-language';
-        elements.translateBtn.title = translations['ar'].translateBtnTitle;
+        elements.translateBtn.title = translations[currentLanguage].translateBtnTitle;
     }
 }
 
@@ -214,7 +219,7 @@ async function generateResearch() {
     elements.loader.classList.add('flex');
     
     elements.generateBtn.disabled = true;
-    elements.generateBtnText.textContent = translations['ar'].generating;
+    elements.generateBtnText.textContent = translations[currentLanguage].generating;
     elements.generateBtnIcon.className = 'fas fa-spinner fa-spin';
 
     try {
@@ -303,7 +308,7 @@ async function generateResearch() {
     } finally {
         // Reset button state
         elements.generateBtn.disabled = false;
-        elements.generateBtnText.textContent = translations['ar'].generateBtnText;
+        elements.generateBtnText.textContent = translations[currentLanguage].generateBtnText;
         elements.generateBtnIcon.className = 'fas fa-cogs';
     }
 }
@@ -521,8 +526,6 @@ async function downloadPDF() {
         
         // Add PDF-specific classes before generation
         element.classList.add('pdf-generation');
-        // Add content language class for text direction
-        element.classList.add(`content-lang-${currentLanguage}`);
         
         // Force hide all size control buttons
         const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
@@ -590,7 +593,6 @@ async function downloadPDF() {
         elements.downloadPdfBtn.innerHTML = originalDownloadText;
         elements.downloadPdfBtn.disabled = false;
         element.classList.remove('pdf-generation');
-        element.classList.remove(`content-lang-${currentLanguage}`);
         
         // Restore size control buttons visibility
         const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
