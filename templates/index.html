@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مساعد الأبحاث الذكي - إنشاء أبحاث بالذكاء الاصطناعي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+        --background-color: #0a0f1a;
+        --primary-color: #101828;
+        --secondary-color: #1d2939;
+        --accent-color: #00aaff;
+        --accent-color-darker: #0088cc;
+        --glow-color: rgba(0, 170, 255, 0.5);
+        --text-color: #e0e0e0;
+        --subtext-color: #98a2b3;
+        --border-color: #344054;
+    }
+
+    body { font-family: 'Cairo', sans-serif; background-color: var(--background-color); color: var(--text-color); }
+    
+    #ai-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    .control-panel {
+        background-color: rgba(16, 24, 40, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border-color);
+        max-height: 90vh;
+    }
+
+    .panel-title {
+        color: var(--accent-color);
+        text-shadow: 0 0 8px var(--glow-color);
+    }
+
+    .lang-btn { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    .lang-btn.active { background-color: var(--accent-color); color: var(--primary-color); border-color: var(--accent-color); box-shadow: 0 0 15px var(--glow-color); transform: scale(1.05); }
+
+    #topicInput { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    #topicInput:focus { border-color: var(--accent-color); box-shadow: 0 0 10px var(--glow-color); outline: none; }
+
+    #generateBtn, #downloadPdfBtn { background-color: var(--accent-color); color: var(--primary-color); border-color: var(--accent-color); transition: all 0.3s ease; }
+    #generateBtn:hover, #downloadPdfBtn:hover:not(:disabled) { background-color: var(--accent-color-darker); box-shadow: 0 0 15px var(--glow-color); }
+    #generateBtn:disabled { background-color: var(--secondary-color); color: var(--subtext-color); cursor: not-allowed; }
+
+    .research-output-container { 
+        background-color: rgba(255, 255, 255, 0.95); 
+        color: #000; 
+        border: 1px solid var(--border-color); 
+        font-family: 'Cairo', sans-serif; 
+        height: 90vh;
+    }
+    .research-output-container.lang-fr, .research-output-container.lang-en { font-family: 'Lato', sans-serif; }
+
+    .research-output-content { line-height: 1.8; }
+    .research-output-content h1, .research-output-content h2, .research-output-content h3 { color: #000; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.25rem; }
+    .research-output-content h1 { font-size: 1.8rem; }
+    .research-output-content h2 { font-size: 1.5rem; }
+    .research-output-content h3 { font-size: 1.2rem; }
+    .research-output-content p { margin-bottom: 1rem; color: #000; }
+    .research-output-content ul { list-style-type: disc; margin-right: 1.5rem; margin-left: 1.5rem; color: #000; }
+
+    .loader { border: 8px solid var(--secondary-color); border-top: 8px solid var(--accent-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .image-placeholder { display: flex; align-items: center; justify-content: center; border: 2px dashed var(--accent-color); border-radius: 0.5rem; padding: 2rem 1rem; margin: 1rem 0; text-align: center; color: var(--accent-color); font-weight: 600; cursor: help; }
+    .inserted-image { width: 100%; max-width: 400px; height: auto; border-radius: 0.5rem; margin: 1rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+    .image-panel { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; }
+    #imageGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
+    #imageGrid .image-container { position: relative; cursor: pointer; }
+    #imageGrid img { width: 100%; height: 80px; object-fit: cover; border-radius: 0.5rem; transition: transform 0.3s ease; }
+    #imageGrid .image-container:hover img { transform: scale(1.05); }
+    #imageGrid .image-number { position: absolute; top: 0.25rem; right: 0.25rem; background-color: rgba(0,0,0,0.7); color: white; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
+    
+    #placementModal { z-index: 100; }
+    .modal-content { background-color: var(--primary-color); border: 1px solid var(--border-color); }
+    .slot-button { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
+    .slot-button:hover { background-color: var(--accent-color); color: var(--primary-color); }
+    .slot-button:disabled { background-color: #2a3b52; color: var(--subtext-color); cursor: not-allowed; }
+
+  </style>
+</head>
+<body>
+  <canvas id="ai-background"></canvas>
+  <div class="page-container w-full h-screen p-4 lg:p-8 grid lg:grid-cols-[400px_1fr] gap-8 relative z-10">
+    
+    <!-- Left Sidebar (Controls + Image Panel) -->
+    <div class="control-panel w-full p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col overflow-y-auto">
+      <div>
+        <h2 class="panel-title text-2xl font-bold text-center mb-6"><i class="fas fa-robot"></i> <span id="appTitle">مساعد الأبحاث الذكي</span></h2>
+        <div class="lang-switch flex justify-center gap-2 mb-6">
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all active" id="arBtn" type="button">العربية</button>
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all" id="frBtn" type="button">Français</button>
+          <button class="lang-btn rounded-full py-1 px-4 text-sm font-bold transition-all" id="enBtn" type="button">English</button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label for="topicInput" id="topicLabel" class="block mb-2 text-lg font-semibold">أدخل موضوع البحث</label>
+                <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" />
+            </div>
+            <button id="generateBtn" class="w-full py-3 px-6 rounded-lg text-lg font-bold cursor-pointer transition-all flex items-center justify-center gap-2">
+              <span id="generateBtnText">إنشاء البحث</span>
+              <i id="generateBtnIcon" class="fas fa-cogs"></i>
+            </button>
+            <button id="downloadPdfBtn" disabled class="w-full py-3 px-6 rounded-lg text-lg font-bold cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-file-pdf"></i> <span id="downloadBtnText">تحميل كملف PDF</span>
+            </button>
+        </div>
+      </div>
+      
+      <!-- Image Panel (Inside Sidebar) -->
+      <div class="image-panel mt-auto">
+          <h3 class="panel-title text-xl font-bold text-center mb-4" id="imageSidebarTitle">معرض الصور</h3>
+          <div id="imagePanelLoader" class="hidden items-center justify-center h-24">
+              <div class="loader" style="width: 40px; height: 40px; border-width: 4px;"></div>
+          </div>
+          <div id="imageGrid">
+              <!-- Images will be dynamically inserted here -->
+          </div>
+      </div>
+    </div>
+
+    <!-- Research Output -->
+    <div id="researchOutputContainer" class="research-output-container rounded-lg shadow-lg p-8 overflow-y-auto w-full">
+        <div id="outputPlaceholder" class="flex items-center justify-center h-full text-center text-gray-400">
+            <div>
+                <i class="fas fa-book-open fa-4x mb-4"></i>
+                <h3 id="placeholderTitle" class="text-2xl font-bold text-gray-500">سيظهر بحثك هنا</h3>
+                <p id="placeholderText" class="mt-2">أدخل موضوعاً واضغط على زر الإنشاء لتبدأ.</p>
+            </div>
+        </div>
+        <div id="loader" class="hidden items-center justify-center h-full">
+            <div class="loader"></div>
+        </div>
+        <div id="researchOutputContent" class="research-output-content">
+            <!-- Default content to show interface working -->
+            <h1>أشرف حكيمي: من شوارع مدريد إلى قمة المجد الكروي</h1>
+            <p>أشرف حكيمي هو أحد أشهر لاعبي كرة القدم في العالم اليوم وهو فخر للمغرب وللعرب. ولد حكيمي في إسبانيا من أبوين مغربيين واختار تمثيل المغرب في كرة القدم. في هذا البحث البسيط سنتعرف على مسيرة هذا النجم اللامع من بداياته حتى وصوله إلى العالمية.</p>
+            <div class="image-placeholder" id="image-slot-1" data-slot-number="1" title="مكان مخصص للصورة رقم 1"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 1 هنا</span></div>
+            <h2>البدايات مع ريال مدريد</h2>
+            <p>بدأ أشرف حكيمي مسيرته الكروية في سن مبكرة، حيث انضم إلى أكاديمية نادي ريال مدريد الإسباني العريق وهو طفل. تدرج في جميع الفئات السنية للنادي، مظهرًا موهبة استثنائية في مركز الظهير الأيمن، حيث تميز بسرعته الفائقة وقدرته على الهجوم والدفاع بكفاءة عالية. في عام 2017، تحقق حلمه باللعب مع الفريق الأول لريال مدريد، ليصبح أول لاعب مغربي يمثل النادي الملكي.</p>
+            <h2>التألق في أوروبا: دورتموند، إنتر ميلان، وباريس سان جيرمان</h2>
+            <p>بحثًا عن فرصة للعب بشكل أساسي، انتقل حكيمي إلى نادي بوروسيا دورتموند الألماني على سبيل الإعارة، وهناك انفجرت موهبته بشكل كبير، حيث أصبح من أفضل الأظهرة في العالم. بعد ذلك، انتقل إلى نادي إنتر ميلان الإيطالي وساهم في فوزه بلقب الدوري الإيطالي. حاليًا، يلعب حكيمي مع نادي باريس سان جيرمان الفرنسي، أحد أكبر الأندية في أوروبا، ويواصل تقديم مستويات رائعة.</p>
+            <div class="image-placeholder" id="image-slot-2" data-slot-number="2" title="مكان مخصص للصورة رقم 2"><i class="fas fa-image mr-2 ml-2"></i><span class="placeholder-text">ضع الصورة رقم 2 هنا</span></div>
+            <h2>أسد الأطلس: مسيرته مع المنتخب المغربي</h2>
+            <p>على الرغم من ولادته في إسبانيا، اختار أشرف حكيمي بقلبه أن يمثل وطنه الأم، المغرب. أصبح ركيزة أساسية في تشكيلة "أسود الأطلس"، وشارك معهم في العديد من البطولات الهامة. كانت أبرز محطاته مع المنتخب هي المشاركة التاريخية في كأس العالم 2022 في قطر، حيث كان له دور كبير في وصول المغرب إلى نصف النهائي كأول منتخب عربي وإفريقي يحقق هذا الإنجاز، وأصبحت ركلته الترجيحية الحاسمة ضد إسبانيا أيقونة خالدة في ذاكرة المغاربة.</p>
+            <h2>خاتمة</h2>
+            <p>أشرف حكيمي ليس مجرد لاعب كرة قدم موهوب، بل هو قصة نجاح ملهمة للشباب العربي والمغربي. بفضل عزيمته واجتهاده، استطاع أن يصل إلى أعلى المستويات في عالم كرة القدم، وأصبح سفيرًا مشرفًا لبلده، يرفع راية المغرب عاليًا في المحافل الدولية.</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- Placement Modal -->
+  <div id="placementModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4">
+      <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-lg">
+          <h4 id="modalTitle" class="text-lg font-bold text-center mb-4">اختر مكان وضع الصورة</h4>
+          <div id="modalSlots" class="flex flex-wrap justify-center gap-3">
+              <!-- Dynamic slot buttons will be inserted here -->
+          </div>
+          <button id="cancelPlacement" class="w-full mt-4 py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+              <span id="cancelText">إلغاء</span>
+          </button>
+      </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
