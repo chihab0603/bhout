@@ -276,18 +276,20 @@ function placeImageInSlot(slotNumber) {
     
     const slot = document.getElementById(`image-slot-${slotNumber}`);
     if (slot) {
-        // Create the image with size controls
+        // Create the image with size controls and PDF-optimized container
         slot.innerHTML = `
-            <img src="${selectedImageForPlacement.url}" 
-                 alt="${selectedImageForPlacement.title}" 
-                 class="inserted-image"
-                 id="inserted-image-${slotNumber}"
-                 style="width: 100%; max-width: 400px;" />
-            <div class="image-size-controls mt-2 flex justify-center gap-2">
-                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
-                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
-                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
-                <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+            <div class="image-container-pdf avoid-break">
+                <img src="${selectedImageForPlacement.url}" 
+                     alt="${selectedImageForPlacement.title}" 
+                     class="inserted-image"
+                     id="inserted-image-${slotNumber}"
+                     style="width: 100%; max-width: 350px;" />
+                <div class="image-size-controls mt-2 flex justify-center gap-2">
+                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
+                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
+                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
+                    <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+                </div>
             </div>
         `;
         closePlacementModal();
@@ -313,18 +315,47 @@ function resizeImage(slotNumber, percentage) {
     }
 }
 
-// PDF download
+// PDF download with A4 optimization
 function downloadPDF() {
     const element = elements.researchOutputContent;
+    
+    // Add PDF-specific classes before generation
+    element.classList.add('pdf-generation');
+    
     const opt = {
-        margin: 1,
+        margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
         filename: `research-${currentLanguage}-${Date.now()}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        image: { 
+            type: 'jpeg', 
+            quality: 0.95,
+            crossOrigin: 'anonymous'
+        },
+        html2canvas: { 
+            scale: 1.5,
+            useCORS: true,
+            allowTaint: true,
+            letterRendering: true,
+            logging: false,
+            imageTimeout: 15000,
+            removeContainer: true
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true
+        },
+        pagebreak: { 
+            mode: ['avoid-all', 'css', 'legacy'],
+            before: '.page-break',
+            after: '.section-break'
+        }
     };
     
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+        // Remove PDF-specific classes after generation
+        element.classList.remove('pdf-generation');
+    }).save();
 }
 
 // Event listeners

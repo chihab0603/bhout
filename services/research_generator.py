@@ -26,37 +26,43 @@ class ResearchGenerator:
         # Language-specific prompts
         prompts = {
             'ar': f"""
-أنشئ بحثاً شاملاً عن موضوع "{topic}" باللغة العربية. يجب أن يحتوي البحث على:
-1. مقدمة شيقة
-2. ثلاثة أقسام رئيسية على الأقل مع عناوين فرعية
-3. خاتمة مفيدة
-4. يجب أن يكون النص مفصلاً ومفيداً (حوالي 800-1000 كلمة)
+أنشئ بحثاً شاملاً عن موضوع "{topic}" باللغة العربية مُحسن لحجم ورقة A4. يجب أن يحتوي البحث على:
+1. مقدمة شيقة (فقرة واحدة قصيرة)
+2. ثلاثة أقسام رئيسية مع عناوين فرعية
+3. خاتمة مفيدة (فقرة واحدة قصيرة)
+4. النص مفصل ومفيد (حوالي 600-800 كلمة لتناسب A4)
 5. استخدم تنسيق Markdown للعناوين والفقرات
-6. اترك placeholders للصور بالشكل التالي: [IMAGE_PLACEHOLDER_1] و [IMAGE_PLACEHOLDER_2] في المواضع المناسبة
+6. اترك placeholders للصور: [IMAGE_PLACEHOLDER_1] و [IMAGE_PLACEHOLDER_2] في المواضع المناسبة
+7. اجعل الفقرات قصيرة ومتوسطة الطول (3-4 جمل لكل فقرة)
+8. اترك مساحات مناسبة بين الأقسام
 
-اكتب البحث بأسلوب أكاديمي واضح ومفهوم.
+اكتب البحث بأسلوب أكاديمي واضح ومفهوم مع مراعاة تخطيط الصفحة.
             """,
             'en': f"""
-Create a comprehensive research paper about "{topic}" in English. The research should include:
-1. An engaging introduction
-2. At least three main sections with subheadings
-3. A useful conclusion
-4. The text should be detailed and informative (around 800-1000 words)
+Create a comprehensive research paper about "{topic}" in English optimized for A4 page size. The research should include:
+1. An engaging introduction (one short paragraph)
+2. Three main sections with subheadings
+3. A useful conclusion (one short paragraph)
+4. Detailed and informative text (around 600-800 words to fit A4)
 5. Use Markdown formatting for headings and paragraphs
-6. Leave image placeholders like: [IMAGE_PLACEHOLDER_1] and [IMAGE_PLACEHOLDER_2] in appropriate positions
+6. Leave image placeholders: [IMAGE_PLACEHOLDER_1] and [IMAGE_PLACEHOLDER_2] in appropriate positions
+7. Keep paragraphs short to medium length (3-4 sentences each)
+8. Leave appropriate spacing between sections
 
-Write the research in a clear and understandable academic style.
+Write the research in a clear academic style considering page layout.
             """,
             'fr': f"""
-Créez un document de recherche complet sur "{topic}" en français. La recherche devrait inclure:
-1. Une introduction engageante
-2. Au moins trois sections principales avec des sous-titres
-3. Une conclusion utile
-4. Le texte doit être détaillé et informatif (environ 800-1000 mots)
+Créez un document de recherche complet sur "{topic}" en français optimisé pour la taille de page A4. La recherche devrait inclure:
+1. Une introduction engageante (un court paragraphe)
+2. Trois sections principales avec des sous-titres
+3. Une conclusion utile (un court paragraphe)
+4. Texte détaillé et informatif (environ 600-800 mots pour s'adapter à A4)
 5. Utilisez le formatage Markdown pour les titres et les paragraphes
-6. Laissez des placeholders d'images comme: [IMAGE_PLACEHOLDER_1] et [IMAGE_PLACEHOLDER_2] aux positions appropriées
+6. Laissez des placeholders d'images: [IMAGE_PLACEHOLDER_1] et [IMAGE_PLACEHOLDER_2] aux positions appropriées
+7. Gardez les paragraphes courts à moyens (3-4 phrases chacun)
+8. Laissez des espaces appropriés entre les sections
 
-Rédigez la recherche dans un style académique clair et compréhensible.
+Rédigez la recherche dans un style académique clair en considérant la mise en page.
             """
         }
         

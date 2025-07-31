@@ -65,19 +65,89 @@
     }
     .research-output-container.lang-fr, .research-output-container.lang-en { font-family: 'Lato', sans-serif; }
 
-    .research-output-content { line-height: 1.8; }
-    .research-output-content h1, .research-output-content h2, .research-output-content h3 { color: #000; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.25rem; }
-    .research-output-content h1 { font-size: 1.8rem; }
-    .research-output-content h2 { font-size: 1.5rem; }
+    .research-output-content { 
+        line-height: 1.6; 
+        page-break-inside: avoid;
+        max-width: 210mm; /* A4 width */
+        margin: 0 auto;
+        padding: 20mm; /* A4 margins */
+    }
+    .research-output-content h1, .research-output-content h2, .research-output-content h3 { 
+        color: #000; 
+        margin-top: 1.2rem; 
+        margin-bottom: 0.6rem; 
+        border-bottom: 1px solid #e0e0e0; 
+        padding-bottom: 0.25rem;
+        page-break-after: avoid;
+        orphans: 3;
+        widows: 3;
+    }
+    .research-output-content h1 { font-size: 1.6rem; page-break-before: auto; }
+    .research-output-content h2 { font-size: 1.4rem; page-break-before: avoid; }
     .research-output-content h3 { font-size: 1.2rem; }
-    .research-output-content p { margin-bottom: 1rem; color: #000; }
-    .research-output-content ul { list-style-type: disc; margin-right: 1.5rem; margin-left: 1.5rem; color: #000; }
+    .research-output-content p { 
+        margin-bottom: 0.8rem; 
+        color: #000; 
+        text-align: justify;
+        orphans: 2;
+        widows: 2;
+        page-break-inside: avoid;
+    }
+    .research-output-content ul { 
+        list-style-type: disc; 
+        margin-right: 1.2rem; 
+        margin-left: 1.2rem; 
+        color: #000;
+        page-break-inside: avoid;
+    }
+    
+    /* Page break utilities for PDF */
+    .page-break { page-break-before: always; }
+    .avoid-break { page-break-inside: avoid; }
+    .section-break { 
+        page-break-before: auto; 
+        margin-top: 2rem; 
+        margin-bottom: 1rem;
+    }
 
     .loader { border: 8px solid var(--secondary-color); border-top: 8px solid var(--accent-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    .image-placeholder { display: flex; align-items: center; justify-content: center; border: 2px dashed var(--accent-color); border-radius: 0.5rem; padding: 2rem 1rem; margin: 1rem 0; text-align: center; color: var(--accent-color); font-weight: 600; cursor: help; }
-    .inserted-image { width: 100%; max-width: 400px; height: auto; border-radius: 0.5rem; margin: 1rem auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .image-placeholder { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border: 2px dashed var(--accent-color); 
+        border-radius: 0.5rem; 
+        padding: 1.5rem 1rem; 
+        margin: 1.5rem 0; 
+        text-align: center; 
+        color: var(--accent-color); 
+        font-weight: 600; 
+        cursor: help;
+        page-break-inside: avoid;
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+    .inserted-image { 
+        width: 100%; 
+        max-width: 350px; 
+        height: auto; 
+        border-radius: 0.5rem; 
+        margin: 1rem auto; 
+        display: block; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        page-break-inside: avoid;
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+    
+    /* Enhanced image container for PDF */
+    .image-container-pdf {
+        page-break-inside: avoid;
+        margin: 1.5rem 0;
+        text-align: center;
+    }
 
     .image-panel { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; }
     #imageGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
