@@ -385,7 +385,7 @@ async function downloadPDF() {
         });
         
         const opt = {
-            margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
+            margin: [10, 8, 10, 8], // Top, Right, Bottom, Left margins in mm (reduced side margins)
             filename: `research-${currentLanguage}-${Date.now()}.pdf`,
             image: { 
                 type: 'jpeg', 
@@ -401,6 +401,7 @@ async function downloadPDF() {
                 imageTimeout: 30000,
                 removeContainer: true,
                 foreignObjectRendering: false,
+                width: 800, // Increase canvas width to use more space
                 onrendered: function(canvas) {
                     console.log('Canvas rendered successfully');
                 }
