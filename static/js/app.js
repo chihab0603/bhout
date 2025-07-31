@@ -322,12 +322,48 @@ function placeImageInSlot(slotNumber) {
         // Use the selected size from gallery, default to 100%
         const selectedSize = selectedImageForPlacement.selectedSize || '100';
         
+        const sizeControlsLabel = currentLanguage === 'ar' ? 'الحجم:' 
+            : currentLanguage === 'fr' ? 'Taille:' : 'Size:';
+        
+        const sizeControls = `
+            <div class="image-size-controls mt-2">
+                <span class="size-label">${sizeControlsLabel}</span>
+                <div class="size-buttons-group">
+                    <button class="size-btn ${selectedSize === '100' ? 'active' : ''}" data-size="100">100%</button>
+                    <button class="size-btn ${selectedSize === '75' ? 'active' : ''}" data-size="75">75%</button>
+                    <button class="size-btn ${selectedSize === '50' ? 'active' : ''}" data-size="50">50%</button>
+                    <button class="size-btn ${selectedSize === '25' ? 'active' : ''}" data-size="25">25%</button>
+                </div>
+            </div>
+        `;
+        
         slot.innerHTML = `
             <img src="${selectedImageForPlacement.url}" 
                  alt="${selectedImageForPlacement.title}" 
                  class="inserted-image" 
                  style="width: ${selectedSize}%; height: auto;" />
+            ${sizeControls}
         `;
+        
+        // Add event listeners for size control buttons
+        const sizeButtons = slot.querySelectorAll('.size-btn');
+        const insertedImage = slot.querySelector('.inserted-image');
+        
+        sizeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Remove active class from all buttons
+                sizeButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Apply size to image
+                const size = button.dataset.size;
+                insertedImage.style.width = `${size}%`;
+            });
+        });
         
         closePlacementModal();
     }
