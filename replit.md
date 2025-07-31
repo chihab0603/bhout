@@ -20,6 +20,7 @@ Preferred communication style: Simple, everyday language.
 - **UPDATED (July 31, 2025)**: Added translate button next to search input field with language icon that translates user input before research generation
 - **ENHANCED (July 31, 2025)**: Improved translation system with Gemini AI integration and comprehensive fallback dictionary for names and topics
 - **INTERFACE UPDATE (July 31, 2025)**: Interface language remains Arabic at all times, only content generation language changes based on selection
+- **PDF DIRECTION FIX (July 31, 2025)**: PDF text direction adapts to content language (LTR for English/French, RTL for Arabic) while maintaining RTL interface layout
 
 # System Architecture
 

@@ -521,6 +521,8 @@ async function downloadPDF() {
         
         // Add PDF-specific classes before generation
         element.classList.add('pdf-generation');
+        // Add content language class for text direction
+        element.classList.add(`content-lang-${currentLanguage}`);
         
         // Force hide all size control buttons
         const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
@@ -588,6 +590,7 @@ async function downloadPDF() {
         elements.downloadPdfBtn.innerHTML = originalDownloadText;
         elements.downloadPdfBtn.disabled = false;
         element.classList.remove('pdf-generation');
+        element.classList.remove(`content-lang-${currentLanguage}`);
         
         // Restore size control buttons visibility
         const sizeControls = element.querySelectorAll('.image-size-controls, .size-btn');
