@@ -84,7 +84,7 @@ const elements = {
     cancelText: document.getElementById('cancelText')
 };
 
-// Language switching
+// Language switching for content generation only
 function switchLanguage(lang) {
     currentLanguage = lang;
     
@@ -92,15 +92,15 @@ function switchLanguage(lang) {
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(lang + 'Btn').classList.add('active');
     
-    // Update text direction
-    document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-    document.documentElement.setAttribute('lang', lang);
+    // Keep interface always in Arabic (RTL)
+    document.documentElement.setAttribute('dir', 'rtl');
+    document.documentElement.setAttribute('lang', 'ar');
     
-    // Update container class
-    elements.researchOutputContainer.className = `research-output-container lang-${lang} rounded-lg shadow-lg p-8 overflow-y-auto w-full`;
+    // Update container class to show selected language for content
+    elements.researchOutputContainer.className = `research-output-container content-lang-${lang} rounded-lg shadow-lg p-8 overflow-y-auto w-full`;
     
-    // Update all text elements
-    const t = translations[lang];
+    // Keep all interface text in Arabic
+    const t = translations['ar']; // Always use Arabic for interface
     elements.appTitle.textContent = t.appTitle;
     elements.topicLabel.textContent = t.topicLabel;
     elements.topicInput.placeholder = t.topicPlaceholder;
@@ -111,6 +111,29 @@ function switchLanguage(lang) {
     elements.placeholderText.textContent = t.placeholderText;
     elements.modalTitle.textContent = t.modalTitle;
     elements.cancelText.textContent = t.cancelText;
+    
+    // Show language selection indicator
+    updateLanguageIndicator(lang);
+}
+
+// Add language indicator function
+function updateLanguageIndicator(lang) {
+    const langNames = {
+        'ar': 'العربية',
+        'en': 'الإنجليزية', 
+        'fr': 'الفرنسية'
+    };
+    
+    // Update any existing language indicator or create one
+    let indicator = document.getElementById('languageIndicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'languageIndicator';
+        indicator.className = 'text-sm text-gray-600 dark:text-gray-300 text-center mt-2';
+        elements.topicInput.parentNode.appendChild(indicator);
+    }
+    
+    indicator.textContent = `لغة المحتوى المُنشأ: ${langNames[lang]}`;
 }
 
 // Event listeners for language buttons
@@ -130,7 +153,7 @@ async function generateResearch() {
     elements.loader.classList.add('flex');
     
     elements.generateBtn.disabled = true;
-    elements.generateBtnText.textContent = translations[currentLanguage].generating;
+    elements.generateBtnText.textContent = translations['ar'].generating; // Always use Arabic for UI
     elements.generateBtnIcon.className = 'fas fa-spinner fa-spin';
 
     try {
@@ -167,7 +190,7 @@ async function generateResearch() {
 
     } catch (error) {
         console.error('Error generating research:', error);
-        alert(`${translations[currentLanguage].error}: ${error.message}`);
+        alert(`${translations['ar'].error}: ${error.message}`); // Always use Arabic for UI
         
         // Show placeholder again
         elements.loader.classList.add('hidden');
@@ -176,7 +199,7 @@ async function generateResearch() {
     } finally {
         // Reset button state
         elements.generateBtn.disabled = false;
-        elements.generateBtnText.textContent = translations[currentLanguage].generateBtnText;
+        elements.generateBtnText.textContent = translations['ar'].generateBtnText; // Always use Arabic for UI
         elements.generateBtnIcon.className = 'fas fa-cogs';
     }
 }
@@ -209,7 +232,7 @@ async function searchImages(topic) {
 
     } catch (error) {
         console.error('Error searching images:', error);
-        elements.imageGrid.innerHTML = `<p class="text-red-500 text-sm">${translations[currentLanguage].error}: ${error.message}</p>`;
+        elements.imageGrid.innerHTML = `<p class="text-red-500 text-sm">${translations['ar'].error}: ${error.message}</p>`; // Always use Arabic for UI
     } finally {
         elements.imagePanelLoader.classList.add('hidden');
         elements.imagePanelLoader.classList.remove('flex');
@@ -266,7 +289,7 @@ function openPlacementModal(image) {
         
         const button = document.createElement('button');
         button.className = `slot-button py-2 px-4 rounded-lg transition-colors ${isOccupied ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`;
-        button.textContent = `${currentLanguage === 'ar' ? 'موقع' : currentLanguage === 'fr' ? 'Position' : 'Slot'} ${slotNumber}`;
+        button.textContent = `موقع ${slotNumber}`; // Always use Arabic for UI
         button.disabled = isOccupied;
         
         if (!isOccupied) {

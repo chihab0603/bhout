@@ -11,6 +11,8 @@ Preferred communication style: Simple, everyday language.
 - Minimize side margins in PDF output for better space utilization  
 - Reduce top spacing above title and center title in PDF format
 - Reduce blue frame padding around images without affecting image content
+- **NEW**: Keep interface always in Arabic, only translate generated content based on language selection
+- Language buttons now control content generation language only, not interface language
 
 # System Architecture
 
