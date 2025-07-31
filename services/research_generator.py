@@ -487,11 +487,8 @@ Fournissez SEULEMENT la traduction/translittération française, aucune explicat
                         result = result.replace(ar_name, fr_name)
                     return result
             
-            # For topics, provide meaningful translations
-            if target_language == 'en':
-                return f"Study of {topic_cleaned}"
-            elif target_language == 'fr':
-                return f"Étude de {topic_cleaned}"
+            # For topics that couldn't be translated, return original
+            return topic_cleaned
             
             # Final fallback - should rarely be reached
             return topic_cleaned

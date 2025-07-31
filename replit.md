@@ -17,6 +17,8 @@ Preferred communication style: Simple, everyday language.
 - Maintain consistent content structure across all languages (Arabic, English, French)
 - Image placeholders and UI elements translate based on selected language
 - **NEW (July 31, 2025)**: Force translation of ALL Arabic titles to selected language (English/French) regardless of topic, ensuring no Arabic titles remain untranslated in the preview interface
+- **UPDATED (July 31, 2025)**: Added translate button next to search input field with language icon that translates user input before research generation
+- **ENHANCED (July 31, 2025)**: Improved translation system with Gemini AI integration and comprehensive fallback dictionary for names and topics
 
 # System Architecture
 
@@ -42,6 +44,8 @@ Preferred communication style: Simple, everyday language.
   - Structured research format with introduction, main sections, and conclusion
   - Markdown formatting for proper document structure
   - Image placeholder integration for visual content
+  - **Enhanced Translation System**: Gemini AI-powered topic translation with comprehensive fallback dictionary
+  - **Name Recognition**: Smart detection and transliteration of Arabic names (e.g., "أسماء بوجيبار" → "Asma Boujibar")
 
 ## Image Search Service (`services/image_search.py`)
 - **Purpose**: Searches and retrieves relevant images for research topics
@@ -60,6 +64,7 @@ Preferred communication style: Simple, everyday language.
 - **Background Animation**: Canvas-based particle system for visual enhancement
 - **PDF Export**: Client-side PDF generation using html2pdf.js
 - **Image Integration**: Drag-and-drop image placement into research content
+- **Translate Button**: In-field translation button that translates user input to selected language before research generation
 
 # Data Flow
 
