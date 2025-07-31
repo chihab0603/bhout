@@ -1,79 +1,55 @@
 import os
 import requests
 import logging
+from ddgs import DDGS
 
 class ImageSearchService:
     def __init__(self):
-        pass
+        self.ddgs = DDGS()
     
     def search_images(self, query, language='ar', max_results=10):
-        """Search for images - simplified version for demonstration"""
+        """Search for images using DuckDuckGo"""
         try:
-            # Generate sample images for demonstration
-            # In production, this would use a real search API like DuckDuckGo
-            sample_images = [
-                {
-                    'id': 1,
-                    'url': 'https://via.placeholder.com/400x300/0066cc/ffffff?text=Image+1',
-                    'thumbnail': 'https://via.placeholder.com/150x120/0066cc/ffffff?text=Image+1',
-                    'title': f'Image related to {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                },
-                {
-                    'id': 2,
-                    'url': 'https://via.placeholder.com/400x300/cc6600/ffffff?text=Image+2',
-                    'thumbnail': 'https://via.placeholder.com/150x120/cc6600/ffffff?text=Image+2',
-                    'title': f'Another image for {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                },
-                {
-                    'id': 3,
-                    'url': 'https://via.placeholder.com/400x300/009966/ffffff?text=Image+3',
-                    'thumbnail': 'https://via.placeholder.com/150x120/009966/ffffff?text=Image+3',
-                    'title': f'Third image about {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                },
-                {
-                    'id': 4,
-                    'url': 'https://via.placeholder.com/400x300/996600/ffffff?text=Image+4',
-                    'thumbnail': 'https://via.placeholder.com/150x120/996600/ffffff?text=Image+4',
-                    'title': f'Fourth image for {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                },
-                {
-                    'id': 5,
-                    'url': 'https://via.placeholder.com/400x300/660099/ffffff?text=Image+5',
-                    'thumbnail': 'https://via.placeholder.com/150x120/660099/ffffff?text=Image+5',
-                    'title': f'Fifth image related to {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                },
-                {
-                    'id': 6,
-                    'url': 'https://via.placeholder.com/400x300/cc0066/ffffff?text=Image+6',
-                    'thumbnail': 'https://via.placeholder.com/150x120/cc0066/ffffff?text=Image+6',
-                    'title': f'Sixth image about {query}',
-                    'source': 'Sample Source',
-                    'width': 400,
-                    'height': 300
-                }
-            ]
+            # Translate query based on language for better results
+            search_query = self._prepare_query(query, language)
             
-            logging.info(f"Generated {len(sample_images)} sample images for query: {query}")
-            return sample_images[:max_results]
+            logging.info(f"Searching images for query: {search_query}")
+            
+            # Search for images using DuckDuckGo
+            results = list(self.ddgs.images(
+                keywords=search_query,
+                region="wt-wt",  # Worldwide
+                safesearch="moderate",
+                size="medium",
+                max_results=max_results
+            ))
+            
+            # Process and filter results
+            processed_images = []
+            for i, result in enumerate(results):
+                try:
+                    # Verify image is accessible
+                    image_url = result.get('image', '')
+                    if self._is_image_accessible(image_url):
+                        processed_images.append({
+                            'id': i + 1,
+                            'url': image_url,
+                            'thumbnail': result.get('thumbnail', image_url),
+                            'title': result.get('title', ''),
+                            'source': result.get('source', ''),
+                            'width': result.get('width', 0),
+                            'height': result.get('height', 0)
+                        })
+                except Exception as e:
+                    logging.warning(f"Error processing image result: {str(e)}")
+                    continue
+            
+            logging.info(f"Found {len(processed_images)} accessible images")
+            return processed_images
             
         except Exception as e:
-            logging.error(f"Error generating sample images: {str(e)}")
-            raise Exception(f"Failed to generate sample images: {str(e)}")
+            logging.error(f"Error searching images: {str(e)}")
+            raise Exception(f"Failed to search images: {str(e)}")
     
     def _prepare_query(self, query, language):
         """Prepare search query based on language"""
