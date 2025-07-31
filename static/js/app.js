@@ -276,7 +276,58 @@ function placeImageInSlot(slotNumber) {
     
     const slot = document.getElementById(`image-slot-${slotNumber}`);
     if (slot) {
-        slot.innerHTML = `<img src="${selectedImageForPlacement.url}" alt="${selectedImageForPlacement.title}" class="inserted-image" />`;
+        const sizeControls = currentLanguage === 'ar' 
+            ? `<div class="image-size-controls mt-2">
+                <span class="size-label">الحجم:</span>
+                <button class="size-btn active" data-size="100">100%</button>
+                <button class="size-btn" data-size="75">75%</button>
+                <button class="size-btn" data-size="50">50%</button>
+                <button class="size-btn" data-size="25">25%</button>
+               </div>`
+            : currentLanguage === 'fr'
+            ? `<div class="image-size-controls mt-2">
+                <span class="size-label">Taille:</span>
+                <button class="size-btn active" data-size="100">100%</button>
+                <button class="size-btn" data-size="75">75%</button>
+                <button class="size-btn" data-size="50">50%</button>
+                <button class="size-btn" data-size="25">25%</button>
+               </div>`
+            : `<div class="image-size-controls mt-2">
+                <span class="size-label">Size:</span>
+                <button class="size-btn active" data-size="100">100%</button>
+                <button class="size-btn" data-size="75">75%</button>
+                <button class="size-btn" data-size="50">50%</button>
+                <button class="size-btn" data-size="25">25%</button>
+               </div>`;
+        
+        slot.innerHTML = `
+            <img src="${selectedImageForPlacement.url}" 
+                 alt="${selectedImageForPlacement.title}" 
+                 class="inserted-image" 
+                 style="width: 100%; height: auto;" />
+            ${sizeControls}
+        `;
+        
+        // Add event listeners for size control buttons
+        const sizeButtons = slot.querySelectorAll('.size-btn');
+        const insertedImage = slot.querySelector('.inserted-image');
+        
+        sizeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Remove active class from all buttons
+                sizeButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Apply size to image
+                const size = button.dataset.size;
+                insertedImage.style.width = `${size}%`;
+            });
+        });
+        
         closePlacementModal();
     }
 }

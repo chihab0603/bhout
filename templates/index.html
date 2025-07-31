@@ -92,6 +92,48 @@
     .slot-button:hover { background-color: var(--accent-color); color: var(--primary-color); }
     .slot-button:disabled { background-color: #2a3b52; color: var(--subtext-color); cursor: not-allowed; }
 
+    /* Size control styling */
+    .image-size-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background-color: rgba(240, 240, 240, 0.9);
+        border-radius: 0.5rem;
+    }
+    
+    .size-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .size-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid #d1d5db;
+        border-radius: 0.25rem;
+        background-color: #f9fafb;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .size-btn:hover {
+        background-color: #e5e7eb;
+        border-color: #9ca3af;
+    }
+    
+    .size-btn.active {
+        background-color: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+        box-shadow: 0 2px 4px rgba(0, 170, 255, 0.3);
+    }
+
   </style>
 </head>
 <body>
