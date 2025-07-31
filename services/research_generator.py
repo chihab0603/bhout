@@ -294,6 +294,9 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                 fallback_translations = {
                     'en': {
                         'التلوث البيئي': 'Environmental Pollution',
+                        'تلوث الماء': 'Water Pollution',
+                        'تلوث المياه': 'Water Pollution', 
+                        'التلوث المائي': 'Water Pollution',
                         'الذكاء الاصطناعي': 'Artificial Intelligence',
                         'التكنولوجيا': 'Technology',
                         'الطب': 'Medicine',
@@ -302,10 +305,15 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'البيئة': 'Environment',
                         'الطاقة المتجددة': 'Renewable Energy',
                         'الصحة': 'Health',
-                        'العلوم': 'Science'
+                        'العلوم': 'Science',
+                        'الأمن السيبراني': 'Cybersecurity',
+                        'التغير المناخي': 'Climate Change'
                     },
                     'fr': {
                         'التلوث البيئي': 'Pollution Environnementale',
+                        'تلوث الماء': 'Pollution de l\'eau',
+                        'تلوث المياه': 'Pollution de l\'eau',
+                        'التلوث المائي': 'Pollution de l\'eau',
                         'الذكاء الاصطناعي': 'Intelligence Artificielle',
                         'التكنولوجيا': 'Technologie',
                         'الطب': 'Médecine',
@@ -314,22 +322,66 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'البيئة': 'Environnement',
                         'الطاقة المتجددة': 'Énergie Renouvelable',
                         'الصحة': 'Santé',
-                        'العلوم': 'Sciences'
+                        'العلوم': 'Sciences',
+                        'الأمن السيبراني': 'Cybersécurité',
+                        'التغير المناخي': 'Changement Climatique'
                     }
                 }
                 
                 # Try to find exact match first
                 lang_dict = fallback_translations.get(target_language, fallback_translations['en'])
-                if topic in lang_dict:
-                    return lang_dict[topic]
                 
-                # Try partial match
+                # Clean topic for better matching
+                topic_cleaned = topic.strip()
+                
+                if topic_cleaned in lang_dict:
+                    return lang_dict[topic_cleaned]
+                
+                # Try partial match with better logic
                 for arabic_term, translation in lang_dict.items():
-                    if arabic_term in topic or topic in arabic_term:
+                    if arabic_term == topic_cleaned:
                         return translation
+                    # Check if the topic contains the term or vice versa
+                    if arabic_term in topic_cleaned or topic_cleaned in arabic_term:
+                        # Only match if similarity is high enough
+                        if len(arabic_term) > 3 and len(topic_cleaned) > 3:
+                            return translation
                 
-                # If no match found, return original topic
-                return topic
+                # For unknown topics, attempt basic translation patterns
+                if target_language == 'en':
+                    # Basic fallback for English
+                    if 'تلوث' in topic_cleaned:
+                        if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
+                            return 'Water Pollution'
+                        else:
+                            return 'Environmental Pollution'
+                    elif 'بيئ' in topic_cleaned:
+                        return 'Environment'
+                    elif 'علوم' in topic_cleaned:
+                        return 'Science'
+                    elif 'طب' in topic_cleaned:
+                        return 'Medicine'
+                    else:
+                        return topic_cleaned  # Return original if no pattern match
+                        
+                elif target_language == 'fr':
+                    # Basic fallback for French
+                    if 'تلوث' in topic_cleaned:
+                        if 'ماء' in topic_cleaned or 'مياه' in topic_cleaned or 'مائي' in topic_cleaned:
+                            return 'Pollution de l\'eau'
+                        else:
+                            return 'Pollution Environnementale'
+                    elif 'بيئ' in topic_cleaned:
+                        return 'Environnement'
+                    elif 'علوم' in topic_cleaned:
+                        return 'Sciences'
+                    elif 'طب' in topic_cleaned:
+                        return 'Médecine'
+                    else:
+                        return topic_cleaned  # Return original if no pattern match
+                
+                # Final fallback
+                return topic_cleaned
                 
         except Exception as e:
             print(f"Translation error: {str(e)}")
