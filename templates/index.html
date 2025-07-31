@@ -93,15 +93,6 @@
         widows: 2;
         page-break-inside: avoid;
     }
-    
-    /* Better text justification and spacing for PDF */
-    .pdf-generation .research-output-content p {
-        text-align: justify !important;
-        text-justify: inter-word !important;
-        hyphens: auto !important;
-        word-spacing: normal !important;
-        letter-spacing: 0 !important;
-    }
     .research-output-content ul { 
         list-style-type: disc; 
         margin-right: 1.2rem; 
@@ -160,7 +151,7 @@
         page-break-inside: avoid;
         margin: 1rem 0;
         text-align: center;
-        max-width: 450px;
+        max-width: 380px;
         width: fit-content;
         margin-left: auto;
         margin-right: auto;
@@ -168,28 +159,6 @@
         border-radius: 0.5rem;
         padding: 0.5rem;
         background-color: rgba(59, 130, 246, 0.05);
-    }
-    
-    /* PDF-specific optimizations for better space usage */
-    .pdf-generation {
-        max-width: none !important;
-        width: 100% !important;
-        padding: 0.5rem !important;
-    }
-    
-    .pdf-generation .research-output-content {
-        max-width: none !important;
-        width: 100% !important;
-        font-size: 14px !important;
-        line-height: 1.4 !important;
-    }
-    
-    .pdf-generation .image-container-pdf {
-        max-width: 500px !important;
-    }
-    
-    .pdf-generation .inserted-image {
-        max-width: 480px !important;
     }
 
     .image-panel { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; }
