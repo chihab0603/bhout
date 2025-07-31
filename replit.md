@@ -45,7 +45,6 @@ Preferred communication style: Simple, everyday language.
 - **Background Animation**: Canvas-based particle system for visual enhancement
 - **PDF Export**: Client-side PDF generation using html2pdf.js
 - **Image Integration**: Drag-and-drop image placement into research content
-- **Tutorial System**: Interactive step-by-step guidance for new users with multilingual support
 
 # Data Flow
 
@@ -108,8 +107,7 @@ Preferred communication style: Simple, everyday language.
 ├── static/              # Static assets
 │   └── js/
 │       ├── app.js       # Main application logic
-│       ├── background.js # Canvas animation
-│       └── tutorial.js  # Interactive tutorial system
+│       └── background.js # Canvas animation
 └── attached_assets/     # Additional resources
 ```
 
