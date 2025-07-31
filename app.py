@@ -3,19 +3,18 @@ import logging
 from flask import Flask, render_template, request, jsonify
 from services.research_generator import ResearchGenerator
 from services.image_search import ImageSearchService
+import requests
+import base64
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key_for_dev")
-
-# Set Gemini API key
-os.environ["GEMINI_API_KEY"] = "AIzaSyD9M0M88svvMfwkniwIPG_ECMc2wbOmrUk"
+app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
 # Initialize services
 research_generator = ResearchGenerator()
-image_search = ImageSearchService()
+image_search_service = ImageSearchService()
 
 @app.route('/')
 def index():
@@ -29,22 +28,18 @@ def generate_research():
         language = data.get('language', 'ar')
         
         if not topic:
-            return jsonify({'error': 'Topic is required'}), 400
+            return jsonify({'success': False, 'error': 'Topic is required'})
         
-        # Generate research content
-        research_content = research_generator.generate_research(topic, language)
+        content = research_generator.generate_research(topic, language)
         
         return jsonify({
             'success': True,
-            'content': research_content
+            'content': content
         })
-    
+        
     except Exception as e:
         logging.error(f"Error generating research: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': f'Failed to generate research: {str(e)}'
-        }), 500
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/search-images', methods=['POST'])
 def search_images():
@@ -54,22 +49,46 @@ def search_images():
         language = data.get('language', 'ar')
         
         if not query:
-            return jsonify({'error': 'Query is required'}), 400
+            return jsonify({'success': False, 'error': 'Query is required'})
         
-        # Search for images
-        images = image_search.search_images(query, language)
+        images = image_search_service.search_images(query, language)
         
         return jsonify({
             'success': True,
             'images': images
         })
-    
+        
     except Exception as e:
         logging.error(f"Error searching images: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': f'Failed to search images: {str(e)}'
-        }), 500
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/proxy-image')
+def proxy_image():
+    """Proxy images to avoid CORS issues"""
+    try:
+        url = request.args.get('url')
+        if not url:
+            return '', 400
+            
+        response = requests.get(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }, timeout=10)
+        
+        if response.status_code == 200:
+            # Convert to base64 for PDF compatibility
+            image_data = base64.b64encode(response.content).decode('utf-8')
+            content_type = response.headers.get('content-type', 'image/jpeg')
+            
+            return jsonify({
+                'success': True,
+                'data': f"data:{content_type};base64,{image_data}"
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Failed to fetch image'}), 400
+            
+    except Exception as e:
+        logging.error(f"Error proxying image: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

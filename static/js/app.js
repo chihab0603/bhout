@@ -271,27 +271,71 @@ function closePlacementModal() {
     selectedImageForPlacement = null;
 }
 
-function placeImageInSlot(slotNumber) {
+async function placeImageInSlot(slotNumber) {
     if (!selectedImageForPlacement) return;
     
     const slot = document.getElementById(`image-slot-${slotNumber}`);
     if (slot) {
-        // Create the image with size controls and PDF-optimized container
+        // Show loading indicator while placing image
         slot.innerHTML = `
             <div class="image-container-pdf avoid-break">
-                <img src="${selectedImageForPlacement.url}" 
-                     alt="${selectedImageForPlacement.title}" 
-                     class="inserted-image"
-                     id="inserted-image-${slotNumber}"
-                     style="width: 100%; max-width: 350px;" />
-                <div class="image-size-controls mt-2 flex justify-center gap-2">
-                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
-                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
-                    <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
-                    <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+                <div class="flex items-center justify-center h-32">
+                    <div class="loader" style="width: 30px; height: 30px; border-width: 3px;"></div>
                 </div>
             </div>
         `;
+        
+        try {
+            // Try to get base64 version for better PDF compatibility
+            const proxyResponse = await fetch(`/api/proxy-image?url=${encodeURIComponent(selectedImageForPlacement.url)}`);
+            let imageSource = selectedImageForPlacement.url;
+            
+            if (proxyResponse.ok) {
+                const proxyData = await proxyResponse.json();
+                if (proxyData.success) {
+                    imageSource = proxyData.data;
+                }
+            }
+            
+            // Create the image with size controls and PDF-optimized container
+            slot.innerHTML = `
+                <div class="image-container-pdf avoid-break">
+                    <img src="${imageSource}" 
+                         alt="${selectedImageForPlacement.title}" 
+                         class="inserted-image"
+                         id="inserted-image-${slotNumber}"
+                         style="width: 100%; max-width: 350px;"
+                         crossorigin="anonymous" />
+                    <div class="image-size-controls mt-2 flex justify-center gap-2">
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+                    </div>
+                </div>
+            `;
+            
+        } catch (error) {
+            console.warn('Failed to proxy image, using direct URL:', error);
+            // Fallback to direct URL
+            slot.innerHTML = `
+                <div class="image-container-pdf avoid-break">
+                    <img src="${selectedImageForPlacement.url}" 
+                         alt="${selectedImageForPlacement.title}" 
+                         class="inserted-image"
+                         id="inserted-image-${slotNumber}"
+                         style="width: 100%; max-width: 350px;"
+                         crossorigin="anonymous" />
+                    <div class="image-size-controls mt-2 flex justify-center gap-2">
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
+                        <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+                    </div>
+                </div>
+            `;
+        }
+        
         closePlacementModal();
     }
 }
@@ -315,47 +359,144 @@ function resizeImage(slotNumber, percentage) {
     }
 }
 
-// PDF download with A4 optimization
-function downloadPDF() {
+// PDF download with A4 optimization and image loading
+async function downloadPDF() {
     const element = elements.researchOutputContent;
     
-    // Add PDF-specific classes before generation
-    element.classList.add('pdf-generation');
+    // Show loading indicator
+    const originalDownloadText = elements.downloadPdfBtn.innerHTML;
+    elements.downloadPdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLanguage === 'ar' ? 'جاري الإنشاء...' : currentLanguage === 'fr' ? 'Génération...' : 'Generating...');
+    elements.downloadPdfBtn.disabled = true;
     
-    const opt = {
-        margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
-        filename: `research-${currentLanguage}-${Date.now()}.pdf`,
-        image: { 
-            type: 'jpeg', 
-            quality: 0.95,
-            crossOrigin: 'anonymous'
-        },
-        html2canvas: { 
-            scale: 1.5,
-            useCORS: true,
-            allowTaint: true,
-            letterRendering: true,
-            logging: false,
-            imageTimeout: 15000,
-            removeContainer: true
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait',
-            compress: true
-        },
-        pagebreak: { 
-            mode: ['avoid-all', 'css', 'legacy'],
-            before: '.page-break',
-            after: '.section-break'
-        }
-    };
-    
-    html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-        // Remove PDF-specific classes after generation
+    try {
+        // Convert external images to base64 for PDF compatibility
+        await convertImagesToBase64(element);
+        
+        // Add PDF-specific classes before generation
+        element.classList.add('pdf-generation');
+        
+        const opt = {
+            margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
+            filename: `research-${currentLanguage}-${Date.now()}.pdf`,
+            image: { 
+                type: 'jpeg', 
+                quality: 0.9,
+                crossOrigin: 'anonymous'
+            },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                letterRendering: true,
+                logging: false,
+                imageTimeout: 30000,
+                removeContainer: true,
+                foreignObjectRendering: false,
+                onrendered: function(canvas) {
+                    console.log('Canvas rendered successfully');
+                }
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait',
+                compress: true
+            },
+            pagebreak: { 
+                mode: ['avoid-all', 'css', 'legacy'],
+                before: '.page-break',
+                after: '.section-break'
+            }
+        };
+        
+        await html2pdf().set(opt).from(element).save();
+        
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        alert(currentLanguage === 'ar' ? 'حدث خطأ في إنشاء ملف PDF' : 'Error generating PDF');
+    } finally {
+        // Restore button state
+        elements.downloadPdfBtn.innerHTML = originalDownloadText;
+        elements.downloadPdfBtn.disabled = false;
         element.classList.remove('pdf-generation');
-    }).save();
+    }
+}
+
+// Convert external images to base64 for PDF compatibility
+async function convertImagesToBase64(container) {
+    const images = container.querySelectorAll('.inserted-image');
+    
+    for (let img of images) {
+        try {
+            // Skip if already base64
+            if (img.src.startsWith('data:')) {
+                continue;
+            }
+            
+            // Try proxy first, then fallback to direct conversion
+            let base64 = null;
+            try {
+                const proxyResponse = await fetch(`/api/proxy-image?url=${encodeURIComponent(img.src)}`);
+                if (proxyResponse.ok) {
+                    const proxyData = await proxyResponse.json();
+                    if (proxyData.success) {
+                        base64 = proxyData.data;
+                    }
+                }
+            } catch (e) {
+                console.warn('Proxy failed, trying direct conversion');
+            }
+            
+            // Fallback to direct conversion
+            if (!base64) {
+                base64 = await imageToBase64(img.src);
+            }
+            
+            if (base64) {
+                img.src = base64;
+                // Ensure image loads properly
+                await new Promise(resolve => {
+                    if (img.complete) {
+                        resolve();
+                    } else {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('Failed to convert image to base64:', error);
+        }
+    }
+}
+
+// Convert image URL to base64
+function imageToBase64(url) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                try {
+                    const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                    resolve(base64);
+                } catch (e) {
+                    console.warn('Canvas tainted, using original URL');
+                    resolve(null);
+                }
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+        } catch (error) {
+            resolve(null);
+        }
+    });
 }
 
 // Event listeners
