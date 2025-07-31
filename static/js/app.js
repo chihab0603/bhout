@@ -456,7 +456,7 @@ async function placeImageInSlot(slotNumber) {
                          alt="${selectedImageForPlacement.title}" 
                          class="inserted-image"
                          id="inserted-image-${slotNumber}"
-                         style="width: 100%; max-width: 350px;"
+                         style="width: 100%; max-width: 100%;"
                          crossorigin="anonymous" />
                     <div class="image-size-controls mt-2 flex justify-center gap-2">
                         <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
@@ -476,7 +476,7 @@ async function placeImageInSlot(slotNumber) {
                          alt="${selectedImageForPlacement.title}" 
                          class="inserted-image"
                          id="inserted-image-${slotNumber}"
-                         style="width: 100%; max-width: 350px;"
+                         style="width: 100%; max-width: 100%;"
                          crossorigin="anonymous" />
                     <div class="image-size-controls mt-2 flex justify-center gap-2">
                         <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
@@ -499,11 +499,9 @@ function resizeImage(slotNumber, percentage) {
     const buttons = slot.querySelectorAll('.size-btn');
     
     if (image) {
-        // Calculate new width based on percentage
-        const maxWidth = 400; // Maximum width in pixels
-        const newWidth = (maxWidth * percentage) / 100;
-        image.style.width = `${newWidth}px`;
-        image.style.maxWidth = `${newWidth}px`;
+        // Set width as percentage of container
+        image.style.width = `${percentage}%`;
+        image.style.maxWidth = `${percentage}%`;
         
         // Update active button
         buttons.forEach(btn => btn.classList.remove('active'));
