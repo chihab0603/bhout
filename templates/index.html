@@ -119,8 +119,8 @@
         justify-content: center; 
         border: 2px dashed var(--accent-color); 
         border-radius: 0.5rem; 
-        padding: 1.5rem 1rem; 
-        margin: 1.5rem 0; 
+        padding: 0.8rem 0.6rem; 
+        margin: 1rem 0; 
         text-align: center; 
         color: var(--accent-color); 
         font-weight: 600; 
@@ -128,6 +128,10 @@
         page-break-inside: avoid;
         page-break-before: avoid;
         page-break-after: avoid;
+        max-width: 380px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
     }
     .inserted-image { 
         width: 100%; 
@@ -145,8 +149,16 @@
     /* Enhanced image container for PDF */
     .image-container-pdf {
         page-break-inside: avoid;
-        margin: 1.5rem 0;
+        margin: 1rem 0;
         text-align: center;
+        max-width: 380px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        border: 2px solid var(--accent-color);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        background-color: rgba(59, 130, 246, 0.05);
     }
 
     .image-panel { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; }
