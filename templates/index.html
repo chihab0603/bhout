@@ -292,7 +292,12 @@
         <div class="space-y-4">
             <div>
                 <label for="topicInput" id="topicLabel" class="block mb-2 text-lg font-semibold">أدخل موضوع البحث</label>
-                <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" />
+                <div class="relative">
+                    <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" />
+                    <button id="translateBtn" title="ترجمة الموضوع" class="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md text-white hover:bg-blue-600 transition-all duration-200">
+                        <i id="translateBtnIcon" class="fas fa-language text-lg"></i>
+                    </button>
+                </div>
             </div>
             <button id="generateBtn" class="w-full py-3 px-6 rounded-lg text-lg font-bold cursor-pointer transition-all flex items-center justify-center gap-2">
               <span id="generateBtnText">إنشاء البحث</span>

@@ -19,7 +19,9 @@ const translations = {
         generating: 'جاري الإنشاء...',
         searchingImages: 'جاري البحث عن الصور...',
         error: 'حدث خطأ',
-        success: 'تم بنجاح'
+        success: 'تم بنجاح',
+        translateBtnTitle: 'ترجمة الموضوع',
+        translating: 'جاري الترجمة...'
     },
     en: {
         appTitle: 'Smart Research Assistant',
@@ -35,7 +37,9 @@ const translations = {
         generating: 'Generating...',
         searchingImages: 'Searching for images...',
         error: 'An error occurred',
-        success: 'Success'
+        success: 'Success',
+        translateBtnTitle: 'Translate Topic',
+        translating: 'Translating...'
     },
     fr: {
         appTitle: 'Assistant de Recherche Intelligent',
@@ -51,7 +55,9 @@ const translations = {
         generating: 'Génération...',
         searchingImages: 'Recherche d\'images...',
         error: 'Une erreur s\'est produite',
-        success: 'Succès'
+        success: 'Succès',
+        translateBtnTitle: 'Traduire le Sujet',
+        translating: 'Traduction...'
     }
 };
 
@@ -63,6 +69,8 @@ const elements = {
     appTitle: document.getElementById('appTitle'),
     topicLabel: document.getElementById('topicLabel'),
     topicInput: document.getElementById('topicInput'),
+    translateBtn: document.getElementById('translateBtn'),
+    translateBtnIcon: document.getElementById('translateBtnIcon'),
     generateBtn: document.getElementById('generateBtn'),
     generateBtnText: document.getElementById('generateBtnText'),
     generateBtnIcon: document.getElementById('generateBtnIcon'),
@@ -116,6 +124,7 @@ function switchLanguage(lang) {
     elements.placeholderText.textContent = t.placeholderText;
     elements.modalTitle.textContent = t.modalTitle;
     elements.cancelText.textContent = t.cancelText;
+    elements.translateBtn.title = t.translateBtnTitle;
     
     // Show language selection indicator
     updateLanguageIndicator(lang);
@@ -151,6 +160,52 @@ function updateLanguageIndicator(lang) {
 elements.arBtn.addEventListener('click', () => switchLanguage('ar'));
 elements.frBtn.addEventListener('click', () => switchLanguage('fr'));
 elements.enBtn.addEventListener('click', () => switchLanguage('en'));
+
+// Event listener for translate button
+elements.translateBtn.addEventListener('click', translateTopic);
+
+// Translate topic function
+async function translateTopic() {
+    const topic = elements.topicInput.value.trim();
+    if (!topic) return;
+    
+    // Don't translate if Arabic is selected or topic is already in target language
+    if (currentLanguage === 'ar') return;
+    
+    // Show loading state
+    elements.translateBtn.disabled = true;
+    elements.translateBtnIcon.className = 'fas fa-spinner fa-spin';
+    elements.translateBtn.title = translations[currentLanguage].translating;
+
+    try {
+        const response = await fetch('/api/translate-topic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                topic: topic,
+                target_language: currentLanguage
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.translated_topic && data.translated_topic !== topic) {
+                elements.topicInput.value = data.translated_topic;
+            }
+        } else {
+            console.error('Translation failed:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
+    } finally {
+        // Reset button state
+        elements.translateBtn.disabled = false;
+        elements.translateBtnIcon.className = 'fas fa-language';
+        elements.translateBtn.title = translations[currentLanguage].translateBtnTitle;
+    }
+}
 
 // Research generation
 async function generateResearch() {
