@@ -385,7 +385,7 @@ async function downloadPDF() {
         });
         
         const opt = {
-            margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in mm
+            margin: [12, 8, 12, 8], // Top, Right, Bottom, Left margins in mm (reduced side margins)
             filename: `research-${currentLanguage}-${Date.now()}.pdf`,
             image: { 
                 type: 'jpeg', 
