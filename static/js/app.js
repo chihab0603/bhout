@@ -276,8 +276,40 @@ function placeImageInSlot(slotNumber) {
     
     const slot = document.getElementById(`image-slot-${slotNumber}`);
     if (slot) {
-        slot.innerHTML = `<img src="${selectedImageForPlacement.url}" alt="${selectedImageForPlacement.title}" class="inserted-image" />`;
+        // Create the image with size controls
+        slot.innerHTML = `
+            <img src="${selectedImageForPlacement.url}" 
+                 alt="${selectedImageForPlacement.title}" 
+                 class="inserted-image"
+                 id="inserted-image-${slotNumber}"
+                 style="width: 100%; max-width: 400px;" />
+            <div class="image-size-controls mt-2 flex justify-center gap-2">
+                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 25)">25%</button>
+                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 50)">50%</button>
+                <button class="size-btn text-xs px-2 py-1 rounded transition-all" onclick="resizeImage(${slotNumber}, 75)">75%</button>
+                <button class="size-btn text-xs px-2 py-1 rounded transition-all active" onclick="resizeImage(${slotNumber}, 100)">100%</button>
+            </div>
+        `;
         closePlacementModal();
+    }
+}
+
+// Function to resize images
+function resizeImage(slotNumber, percentage) {
+    const image = document.getElementById(`inserted-image-${slotNumber}`);
+    const slot = document.getElementById(`image-slot-${slotNumber}`);
+    const buttons = slot.querySelectorAll('.size-btn');
+    
+    if (image) {
+        // Calculate new width based on percentage
+        const maxWidth = 400; // Maximum width in pixels
+        const newWidth = (maxWidth * percentage) / 100;
+        image.style.width = `${newWidth}px`;
+        image.style.maxWidth = `${newWidth}px`;
+        
+        // Update active button
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
     }
 }
 

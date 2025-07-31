@@ -91,6 +91,29 @@
     .slot-button { background-color: var(--secondary-color); border: 1px solid var(--border-color); }
     .slot-button:hover { background-color: var(--accent-color); color: var(--primary-color); }
     .slot-button:disabled { background-color: #2a3b52; color: var(--subtext-color); cursor: not-allowed; }
+    
+    .image-size-controls { margin-top: 0.5rem; }
+    .size-btn { 
+        background-color: var(--secondary-color); 
+        color: var(--text-color); 
+        border: 1px solid var(--border-color); 
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .size-btn:hover { 
+        background-color: var(--accent-color); 
+        color: var(--primary-color); 
+        border-color: var(--accent-color);
+    }
+    .size-btn.active { 
+        background-color: var(--accent-color); 
+        color: var(--primary-color); 
+        border-color: var(--accent-color);
+        box-shadow: 0 0 8px var(--glow-color);
+    }
 
   </style>
 </head>
