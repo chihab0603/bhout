@@ -276,7 +276,7 @@ function placeImageInSlot(slotNumber) {
     
     const slot = document.getElementById(`image-slot-${slotNumber}`);
     if (slot) {
-        slot.innerHTML = `<img src="${selectedImageForPlacement.url}" alt="${selectedImageForPlacement.title}" class="inserted-image" style="width: 28%; height: auto; display: block; margin: 10px auto;" />`;
+        slot.innerHTML = `<img src="${selectedImageForPlacement.url}" alt="${selectedImageForPlacement.title}" class="inserted-image" style="width: 75%; height: auto; display: block; margin: 10px auto;" />`;
         closePlacementModal();
     }
 }
