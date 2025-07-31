@@ -395,8 +395,6 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                     return 'Cleanliness'
                 elif 'هاتف' in topic_cleaned or 'جوال' in topic_cleaned or 'موبايل' in topic_cleaned:
                     return 'Phone'
-                else:
-                    return topic_cleaned  # Return original if no pattern match
                     
             elif target_language == 'fr':
                 # Basic fallback for French
@@ -417,27 +415,83 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                     return 'Propreté'
                 elif 'هاتف' in topic_cleaned or 'جوال' in topic_cleaned or 'موبايل' in topic_cleaned:
                     return 'Téléphone'
-                else:
-                    return topic_cleaned  # Return original if no pattern match
             
-            # If no specific translation found, try Gemini for ANY Arabic text
+            # Use Gemini for ALL Arabic text translation - improved prompt
             if self.model and GEMINI_AVAILABLE:
                 try:
-                    prompt = translation_prompts.get(target_language, translation_prompts['en'])
+                    # Enhanced prompts with better instructions
+                    enhanced_prompts = {
+                        'en': f"""Translate this Arabic text to English. If it's a person's name, keep the name but you can transliterate it to English spelling. If it's a topic, translate it clearly:
+
+Arabic text: "{topic}"
+
+Provide ONLY the English translation/transliteration, no explanations.""",
+                        'fr': f"""Traduisez ce texte arabe en français. S'il s'agit d'un nom de personne, gardez le nom mais vous pouvez le translittérer en orthographe française. S'il s'agit d'un sujet, traduisez-le clairement:
+
+Texte arabe: "{topic}"
+
+Fournissez SEULEMENT la traduction/translittération française, aucune explication."""
+                    }
+                    
+                    prompt = enhanced_prompts.get(target_language, enhanced_prompts['en'])
                     response = self.model.generate_content(prompt)
                     translated_topic = response.text.strip()
-                    if translated_topic and translated_topic != topic_cleaned:
+                    
+                    # Clean the response from any unwanted formatting
+                    translated_topic = translated_topic.replace('"', '').replace("'", "").strip()
+                    
+                    if translated_topic and translated_topic != topic_cleaned and len(translated_topic) > 0:
                         return translated_topic
                 except Exception as e:
                     print(f"Gemini translation error: {e}")
             
-            # If Gemini fails, use basic word-by-word translation attempt
+            # Enhanced fallback approach for names and topics
+            import re
+            
+            # Check if it looks like a person's name (has typical Arabic name patterns)
+            name_patterns = ['أسماء', 'محمد', 'أحمد', 'علي', 'فاطمة', 'عائشة', 'خديجة', 'مريم', 'بوجيبار', 'الحمادي', 'الجوهري']
+            is_likely_name = any(pattern in topic_cleaned for pattern in name_patterns)
+            
+            if is_likely_name:
+                # For names, just transliterate or keep as is
+                if target_language == 'en':
+                    # Basic name transliterations
+                    name_translations = {
+                        'أسماء': 'Asma',
+                        'محمد': 'Mohammed',
+                        'أحمد': 'Ahmed',
+                        'علي': 'Ali',
+                        'فاطمة': 'Fatima',
+                        'بوجيبار': 'Boujibar',
+                        'أسماء بوجيبار': 'Asma Boujibar'
+                    }
+                    # Try to find and replace known names
+                    result = topic_cleaned
+                    for ar_name, en_name in name_translations.items():
+                        result = result.replace(ar_name, en_name)
+                    return result
+                    
+                elif target_language == 'fr':
+                    # Basic name transliterations for French
+                    name_translations = {
+                        'أسماء': 'Asma',
+                        'محمد': 'Mohammed',
+                        'أحمد': 'Ahmed',
+                        'علي': 'Ali',
+                        'فاطمة': 'Fatima',
+                        'بوجيبار': 'Boujibar',
+                        'أسماء بوجيبار': 'Asma Boujibar'
+                    }
+                    result = topic_cleaned
+                    for ar_name, fr_name in name_translations.items():
+                        result = result.replace(ar_name, fr_name)
+                    return result
+            
+            # For topics, provide meaningful translations
             if target_language == 'en':
-                # Try to create basic English translation
-                return f"Research on {topic_cleaned}"
+                return f"Study of {topic_cleaned}"
             elif target_language == 'fr':
-                # Try to create basic French translation  
-                return f"Recherche sur {topic_cleaned}"
+                return f"Étude de {topic_cleaned}"
             
             # Final fallback - should rarely be reached
             return topic_cleaned
