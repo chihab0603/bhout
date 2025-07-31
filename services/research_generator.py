@@ -312,7 +312,13 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'الرياضة': 'Sports',
                         'البرمجة': 'Programming',
                         'الإنترنت': 'Internet',
-                        'الشبكة العنكبوتية': 'World Wide Web'
+                        'الشبكة العنكبوتية': 'World Wide Web',
+                        'النظافة': 'Cleanliness',
+                        'التنظيف': 'Cleaning',
+                        'الهاتف': 'Phone',
+                        'الهاتف المحمول': 'Mobile Phone',
+                        'الجوال': 'Mobile Phone',
+                        'الموبايل': 'Mobile Phone'
                     },
                     'fr': {
                         'التلوث البيئي': 'Pollution Environnementale',
@@ -340,7 +346,13 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                         'الرياضة': 'Sports',
                         'البرمجة': 'Programmation',
                         'الإنترنت': 'Internet',
-                        'الشبكة العنكبوتية': 'World Wide Web'
+                        'الشبكة العنكبوتية': 'World Wide Web',
+                        'النظافة': 'Propreté',
+                        'التنظيف': 'Nettoyage',
+                        'الهاتف': 'Téléphone',
+                        'الهاتف المحمول': 'Téléphone Portable',
+                        'الجوال': 'Téléphone Portable',
+                        'الموبايل': 'Téléphone Portable'
                     }
             }
             
@@ -379,6 +391,10 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                     return 'Medicine'
                 elif 'العاب' in topic_cleaned or 'ألعاب' in topic_cleaned:
                     return 'Electronic Games'
+                elif 'نظاف' in topic_cleaned:
+                    return 'Cleanliness'
+                elif 'هاتف' in topic_cleaned or 'جوال' in topic_cleaned or 'موبايل' in topic_cleaned:
+                    return 'Phone'
                 else:
                     return topic_cleaned  # Return original if no pattern match
                     
@@ -397,6 +413,10 @@ En conclusion de cette recherche complète, nous pouvons dire que {topic} repré
                     return 'Médecine'
                 elif 'العاب' in topic_cleaned or 'ألعاب' in topic_cleaned:
                     return 'Jeux Électroniques'
+                elif 'نظاف' in topic_cleaned:
+                    return 'Propreté'
+                elif 'هاتف' in topic_cleaned or 'جوال' in topic_cleaned or 'موبايل' in topic_cleaned:
+                    return 'Téléphone'
                 else:
                     return topic_cleaned  # Return original if no pattern match
             
