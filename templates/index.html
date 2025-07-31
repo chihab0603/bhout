@@ -232,8 +232,25 @@
     .pdf-generation .research-output-content {
         padding-left: 0.8rem !important;
         padding-right: 0.8rem !important;
+        padding-top: 0.5rem !important;
         margin: 0 !important;
         max-width: none !important;
+    }
+    
+    /* Center and reduce top spacing for main title in PDF */
+    .pdf-generation h1:first-child {
+        text-align: center !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        margin-bottom: 1.5rem !important;
+        font-size: 1.8rem !important;
+        font-weight: bold !important;
+    }
+    
+    /* Remove top margin from research output container for PDF */
+    .pdf-generation #researchOutputContainer {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
     }
 
   </style>

@@ -384,8 +384,16 @@ async function downloadPDF() {
             control.style.height = '0';
         });
         
+        // Center the main title and remove top spacing
+        const mainTitle = element.querySelector('h1');
+        if (mainTitle) {
+            mainTitle.style.textAlign = 'center';
+            mainTitle.style.marginTop = '0';
+            mainTitle.style.paddingTop = '0';
+        }
+        
         const opt = {
-            margin: [12, 8, 12, 8], // Top, Right, Bottom, Left margins in mm (reduced side margins)
+            margin: [8, 8, 12, 8], // Top, Right, Bottom, Left margins in mm (reduced top margin)
             filename: `research-${currentLanguage}-${Date.now()}.pdf`,
             image: { 
                 type: 'jpeg', 
