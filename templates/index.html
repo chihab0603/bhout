@@ -273,6 +273,15 @@
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
+    
+    /* Translate button positioning based on language direction */
+    [dir="rtl"] .translate-btn-position {
+        left: 0.5rem;
+    }
+    
+    [dir="ltr"] .translate-btn-position {
+        right: 0.5rem;
+    }
 
   </style>
 </head>
@@ -293,8 +302,8 @@
             <div>
                 <label for="topicInput" id="topicLabel" class="block mb-2 text-lg font-semibold">أدخل موضوع البحث</label>
                 <div class="relative">
-                    <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 pr-12 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" />
-                    <button id="translateBtn" title="ترجمة الموضوع" class="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md text-white hover:bg-blue-600 transition-all duration-200">
+                    <input type="text" id="topicInput" placeholder="مثال: المجموعة الشمسية" class="w-full rounded-lg text-base p-3 text-white placeholder-gray-400 focus:ring-2 focus:outline-none" style="padding-right: 3rem; padding-left: 3rem;" />
+                    <button id="translateBtn" title="ترجمة الموضوع" class="absolute top-1/2 transform -translate-y-1/2 p-2 rounded-md text-blue-400 hover:text-blue-300 hover:bg-blue-600/20 transition-all duration-200 translate-btn-position">
                         <i id="translateBtnIcon" class="fas fa-language text-lg"></i>
                     </button>
                 </div>
