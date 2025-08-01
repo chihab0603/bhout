@@ -1,3 +1,4 @@
 Flask
 duckduckgo-search
 requests
+ddgs
